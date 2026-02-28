@@ -1,155 +1,43 @@
 // @ts-nocheck
-// Phase 1: verbatim port of index.html script. TypeScript types added in Phases 2–5.
+// Phase 2: imports from extracted typed modules. DOM/mode logic typed in Phases 3–5.
 import './style.css';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// SHARED: Word List
-// ═══════════════════════════════════════════════════════════════════════════════
-const WORDS = new Set([
-  // 4-letter
-  "able","acid","aged","also","area","army","away","back","ball","band",
-  "bank","base","bath","bear","beat","been","bell","best","bird","blow",
-  "blue","boat","body","bomb","bond","bone","book","bore","born","both",
-  "brow","bulk","burn","busy","call","calm","came","card","care","case",
-  "cash","cast","cave","cell","chat","chin","chip","city","clam","clap",
-  "claw","clay","clue","coal","coat","code","coil","cold","come","cook",
-  "cool","cope","copy","core","corn","cost","coup","crew","crop","cure",
-  "curl","damp","dark","data","date","dawn","days","dead","deal","dean",
-  "dear","debt","deep","deny","desk","dime","dine","dirt","disk","dock",
-  "does","door","dose","down","draw","drew","drop","drug","drum","dual",
-  "dull","dump","dusk","dust","duty","each","earn","ease","east","easy",
-  "edge","else","emit","epic","even","ever","evil","exam","face","fact",
-  "fair","fall","fame","farm","fast","fate","fear","feat","feed","feel",
-  "fell","felt","file","fill","film","find","fine","fire","firm","fish",
-  "fist","flag","flat","flew","flip","flow","foam","fold","folk","fond",
-  "font","food","fool","foot","ford","fore","fork","form","fort","foul",
-  "four","free","from","fuel","full","fund","fuse","gain","game","gave",
-  "gear","gene","gift","girl","give","glad","glow","glue","goal","gold",
-  "golf","gone","good","grab","gram","grew","grid","grin","grip","grow",
-  "gulf","gust","half","hall","halt","hand","hang","hard","harm","hate",
-  "have","hawk","head","heal","heap","heat","heel","held","help","here",
-  "hide","high","hill","hint","hire","hole","home","hook","hope","horn",
-  "host","hour","huge","hung","hunt","hurt","icon","idea","inch","into",
-  "iron","item","jobs","join","joke","jump","just","keen","keep","kind",
-  "king","knew","know","lack","laid","lake","land","lane","last","late",
-  "lead","leaf","lean","leap","left","lend","lens","less","life","lift",
-  "like","lime","line","link","list","live","load","loan","lock","loft",
-  "lone","long","look","loop","lord","lore","lose","loss","lost","love",
-  "luck","lung","made","mail","main","make","male","mall","many","mark",
-  "mart","mask","mass","mast","math","meal","mean","meat","meet","melt",
-  "memo","menu","mere","mesh","mild","mile","milk","mill","mind","mine",
-  "mint","miss","mode","mood","moon","more","most","move","much","muse",
-  "must","myth","nail","name","navy","near","neat","neck","need","news",
-  "next","nice","nine","node","none","noon","norm","nose","note","noun",
-  "obey","once","only","open","oral","over","page","paid","pain","pair",
-  "pale","palm","park","part","pass","past","path","pave","peak","peel",
-  "peer","pick","pile","pine","pink","pipe","plan","play","plot","plug",
-  "plus","poem","poet","pole","poll","pond","pool","poor","pork","port",
-  "pose","post","pour","pray","prep","prey","pull","pump","pure","push",
-  "quit","race","rack","rage","rail","rain","rank","rare","rate","read",
-  "real","rely","rent","rest","rice","rich","ride","ring","riot","rise",
-  "risk","road","roam","roar","rock","role","roll","roof","room","rope",
-  "rose","rout","ruin","rule","rush","safe","said","sail","sake","salt",
-  "same","sand","save","scan","seal","seam","seat","seed","seek","seem",
-  "self","sell","send","sent","ship","shop","shot","show","shut","sick",
-  "side","sign","silk","sill","sing","sink","site","size","skin","skip",
-  "slam","slap","slim","slip","slow","slum","snap","snow","soap","soar",
-  "sock","soft","soil","sole","some","song","soon","sort","soul","soup",
-  "span","spin","spot","star","stay","stem","step","stir","stop","such",
-  "suit","sure","tale","tall","task","team","tell","tend","tent","term",
-  "test","text","than","that","them","then","they","thin","this","tide",
-  "till","time","tire","told","toll","tomb","tone","took","tool","tore",
-  "torn","tour","town","trap","tree","trim","trip","true","tube","tuck",
-  "tuna","tune","turn","twin","type","unit","upon","used","user","vast",
-  "veil","very","vest","view","vine","void","volt","vote","wade","wage",
-  "wake","walk","wall","wane","ward","warm","wary","wash","wave","weak",
-  "wear","weed","week","well","went","were","west","what","when","whom",
-  "wide","wife","wild","will","wind","wine","wing","wire","wise","wish",
-  "with","woke","wolf","wood","word","wore","work","worm","worn","wrap",
-  "writ","yard","year","your","zero","zone",
-  // 3-letter
-  "ace","act","add","age","ago","aid","aim","air","all","and","ant","any",
-  "apt","arc","are","ark","arm","art","ash","ask","ate","awe","axe","aye",
-  "bag","ban","bar","bat","bay","bed","beg","bet","bid","big","bit","bow",
-  "box","boy","bud","bug","bun","bus","but","buy","cab","can","cap","car",
-  "cat","cob","cod","cog","con","cop","cow","cry","cub","cup","cut","dam",
-  "day","den","dew","did","dig","dim","dip","doe","dog","dot","dry","dug",
-  "dye","ear","eat","eel","egg","ego","elf","elm","end","era","eve","ewe",
-  "eye","fan","far","fat","fax","fed","few","fig","fin","fit","fix","fly",
-  "foe","fog","for","fox","fry","fur","gag","gap","gas","gay","get","god",
-  "got","gun","gut","guy","gym","had","hag","ham","has","hat","hay","her",
-  "hid","him","hip","his","hit","hog","hot","how","hub","hug","hum","hut",
-  "ice","ill","imp","ink","inn","ion","ivy","jab","jam","jar","jaw","jet",
-  "jot","joy","jug","jut","keg","key","kid","kit","lag","lap","law","lay",
-  "leg","let","lid","lip","lit","log","lot","low","lug","mad","map","mar",
-  "mat","may","mob","mod","mop","mud","mug","nab","nag","nap","net","new",
-  "nod","nor","not","now","nun","nut","oak","oar","oat","odd","off","oil",
-  "old","one","opt","orb","ore","our","out","owe","owl","own","pad","pan",
-  "pap","par","pat","paw","pay","pea","peg","pen","pet","pie","pig","pin",
-  "pit","pod","pop","pot","pow","pro","pub","pun","pup","put","rag","ram",
-  "ran","rap","rat","raw","ray","red","ref","rep","rid","rig","rip","rob",
-  "rot","row","rub","rug","rum","run","rut","rye","sac","sad","sag","sap",
-  "sat","saw","say","sea","set","sew","she","shy","sin","sip","sir","sit",
-  "six","ski","sky","sly","sob","son","sow","soy","spa","spy","sty","sub",
-  "sue","sum","sun","sup","tab","tag","tan","tap","tar","tax","tea","ten",
-  "the","tie","tip","toe","top","tot","toy","tub","tug","two","urn","use",
-  "van","vat","via","vim","vow","war","was","wax","web","wed","wet","who",
-  "why","wig","win","wit","woe","wok","won","woo","wow","yam","yap","yew",
-  "you","yow","zap","zit","zoo"
-]);
+import { WORDS } from './data/wordList.ts';
+import {
+  initClassicGrid as _initClassicGrid,
+  initBlitzGrid as _initBlitzGrid,
+  pivotGrid,
+  clearPulsing,
+  lockCells,
+  countLocked,
+  cascadeColumn,
+  createCell,
+  getRandomLetter,
+} from './logic/GridEngine.ts';
+import { detectBestWord, validateSelection, canExtendSelection as _canExtendSelection } from './logic/WordDetector.ts';
+import { scoreWordClassic, scoreWordBlitz, timeBonus } from './logic/Scoring.ts';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SHARED: Grid + Pivot + Detection
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// Classic initial layout — designed to reveal: STAR, RATS, ARTS, CARE, RACE, ACRE, SLAP, LAKE…
-const INITIAL_LETTERS = [
-  ['S','T','A','R'],
-  ['E','C','E','A'],
-  ['R','A','K','T'],
-  ['S','L','A','P'],
-];
-
-// Blitz letter pool (weighted toward common letters)
-const LETTER_POOL = 'AAAAAABBBBCCCDDDDEEEEEEEEFFFGGGHHHHIIIIIIJJKKLLLLLMMMNNNNNOOOOOOPPPPQRRRRRRSSSSSSTTTTTTTUUUUUVVWWWXYYYZZ';
-
 let grid = [];             // grid[r][c] = { letter, isLocked, isPulsing }
 let score = 0;
-let pendingWord = null;    // { word, cells:[{r,c}], dir } — used by Blitz only
+let pendingWord = null;    // { word, cells:[{r,c}] } — used by Blitz only
 let currentMode = null;    // 'classic' | 'blitz'
 let classicSelection = []; // [{r,c}, ...] — player's current tile selection (Classic only)
 
-function getRandomLetter() {
-  return LETTER_POOL[Math.floor(Math.random() * LETTER_POOL.length)];
-}
+function makeCell(letter) { return createCell(letter); }
 
-function makeCell(letter) {
-  return { letter, isLocked: false, isPulsing: false };
-}
+function initClassicGrid() { grid = _initClassicGrid(); }
 
-function initClassicGrid() {
-  grid = INITIAL_LETTERS.map(row => row.map(makeCell));
-}
-
-function initBlitzGrid() {
-  grid = Array.from({ length: 4 }, () =>
-    Array.from({ length: 4 }, () => makeCell(getRandomLetter()))
-  );
-}
+function initBlitzGrid() { grid = _initBlitzGrid(); }
 
 // ── Pivot ──────────────────────────────────────────────────────────────────────
 function pivot(pr, pc) {
-  const tl = { ...grid[pr][pc] };
-  const tr = { ...grid[pr][pc + 1] };
-  const br = { ...grid[pr + 1][pc + 1] };
-  const bl = { ...grid[pr + 1][pc] };
-  grid[pr][pc + 1]     = tl;
-  grid[pr + 1][pc + 1] = tr;
-  grid[pr + 1][pc]     = br;
-  grid[pr][pc]         = bl;
+  grid = pivotGrid(grid, pr, pc);
 
   pendingWord = null;
-  clearAllPulsing();
+  grid = clearPulsing(grid);
   if (currentMode === 'classic') {
     classicSelection = [];
     updateWordDisplay();
@@ -172,11 +60,7 @@ function animateQuadrant(pr, pc) {
 }
 
 // ── Word Detection ─────────────────────────────────────────────────────────────
-function clearAllPulsing() {
-  for (let r = 0; r < 4; r++)
-    for (let c = 0; c < 4; c++)
-      grid[r][c].isPulsing = false;
-}
+function clearAllPulsing() { grid = clearPulsing(grid); }
 
 // ── Classic: Manual tile selection ─────────────────────────────────────────────
 function updateWordDisplay() {
@@ -202,21 +86,7 @@ function updateWordDisplay() {
 }
 
 function canExtendSelection(r, c) {
-  if (grid[r][c].isLocked) return false;
-  const n = classicSelection.length;
-  if (n >= 4) return false;
-  if (classicSelection.some(s => s.r === r && s.c === c)) return false;
-  if (n === 0) return true;
-
-  const last = classicSelection[n - 1];
-  if (n === 1) {
-    return (r === last.r && Math.abs(c - last.c) === 1) ||
-           (c === last.c && Math.abs(r - last.r) === 1);
-  }
-  // Direction locked after 2 tiles
-  const dr = classicSelection[1].r - classicSelection[0].r;
-  const dc = classicSelection[1].c - classicSelection[0].c;
-  return r === last.r + dr && c === last.c + dc;
+  return _canExtendSelection(grid, classicSelection, r, c);
 }
 
 function handleClassicTileClick(r, c) {
@@ -238,39 +108,13 @@ function handleClassicTileClick(r, c) {
   updateUI();
 }
 
-function isValidWord(str, cells) {
-  if (!WORDS.has(str.toLowerCase())) return false;
-  return cells.every(({ r, c }) => !grid[r][c].isLocked);
-}
-
 function detectWords() {
-  clearAllPulsing();
-  pendingWord = null;
-  let best = null;
-
-  function tryWord(str, cells) {
-    if (isValidWord(str, cells)) {
-      if (!best || str.length > best.word.length) best = { word: str, cells };
-    }
-  }
-
-  for (let r = 0; r < 4; r++) {
-    const full = grid[r].map(t => t.letter).join('');
-    tryWord(full, [0,1,2,3].map(c => ({ r, c })));
-    for (let s = 0; s <= 1; s++)
-      tryWord(full.slice(s, s+3), [s,s+1,s+2].map(c => ({ r, c })));
-  }
-  for (let c = 0; c < 4; c++) {
-    const full = [0,1,2,3].map(r => grid[r][c].letter).join('');
-    tryWord(full, [0,1,2,3].map(r => ({ r, c })));
-    for (let s = 0; s <= 1; s++)
-      tryWord(full.slice(s, s+3), [s,s+1,s+2].map(r => ({ r, c })));
-  }
-
-  if (best) {
-    pendingWord = best;
-    best.cells.forEach(({ r, c }) => { grid[r][c].isPulsing = true; });
-    showMessage(`"${best.word.toUpperCase()}" detected! Tap to commit.`);
+  grid = clearPulsing(grid);
+  const match = detectBestWord(grid, WORDS);
+  pendingWord = match;
+  if (match) {
+    match.cells.forEach(({ r, c }) => { grid[r][c].isPulsing = true; });
+    showMessage(`"${match.word.toUpperCase()}" detected! Tap to commit.`);
   } else {
     hideMessage();
   }
@@ -304,17 +148,15 @@ function startClassic() {
 function commitWordClassic() {
   if (classicSelection.length < 3) return;
   const word = classicSelection.map(({ r, c }) => grid[r][c].letter).join('');
-  if (!isValidWord(word, classicSelection)) {
+  if (!validateSelection(grid, classicSelection, WORDS)) {
     showMessage(`"${word}" is not a valid word.`, 1500);
     classicSelection = [];
     updateWordDisplay();
     updateUI();
     return;
   }
-  const pts = word.length === 4 ? 500 : 100;
-  classicSelection.forEach(({ r, c }) => {
-    grid[r][c].isLocked = true;
-  });
+  const pts = scoreWordClassic(word);
+  grid = lockCells(grid, classicSelection);
   score += pts;
   classicSelection = [];
   updateWordDisplay();
@@ -421,14 +263,11 @@ function resetCombo() {
 
 function commitWordBlitz() {
   if (!pendingWord) return;
-  const basePts  = pendingWord.word.length === 4 ? 500 : 100;
-  const earnedPts = basePts * blitzCombo;
-  const addedTime = pendingWord.word.length === 4 ? 15 : 8;
+  const earnedPts = scoreWordBlitz(pendingWord.word, blitzCombo);
+  const addedTime = timeBonus(pendingWord.word);
 
   const lockedCells = [...pendingWord.cells];
-  lockedCells.forEach(({ r, c }) => {
-    grid[r][c].isPulsing = false;
-  });
+  grid = clearPulsing(grid);
 
   score += earnedPts;
   blitzWordsFound++;
@@ -439,7 +278,6 @@ function commitWordBlitz() {
   updateUI();
   showMessage(`+${earnedPts} pts${blitzCombo > 1 ? ` (x${blitzCombo} combo!)` : ''}`, 1800);
 
-  // Animate tiles out, then cascade-refill after short delay
   animateTilesExit(lockedCells, () => {
     cascadeRefill(lockedCells);
   });
@@ -459,41 +297,23 @@ function animateTilesExit(cells, cb) {
 }
 
 function cascadeRefill(exitedCells) {
-  // Group exited cells by column
+  // Group exited rows by column
   const byCol = {};
   exitedCells.forEach(({ r, c }) => {
     if (!byCol[c]) byCol[c] = [];
     byCol[c].push(r);
   });
 
-  // For each column: shift non-exited rows down, fill from top
+  // Use GridEngine.cascadeColumn for each affected column
   Object.entries(byCol).forEach(([colStr, rows]) => {
-    const c = +colStr;
-    // Collect non-exiting rows top-to-bottom
-    const kept = [];
-    for (let r = 0; r < 4; r++) {
-      if (!rows.includes(r)) kept.push({ ...grid[r][c] });
-    }
-    // Fill from top: new random letters first, then kept tiles
-    const newLetters = rows.map(() => makeCell(getRandomLetter()));
-    const newCol = [...newLetters, ...kept];
-    for (let r = 0; r < 4; r++) {
-      grid[r][c] = { ...newCol[r], isLocked: false, isPulsing: false };
-    }
+    grid = cascadeColumn(grid, +colStr, rows);
   });
 
-  // Re-render and detect
   updateUI();
 
-  // Animate entering tiles
-  exitedCells.forEach(({ r, c }) => {
-    // The new tiles that filled the top are in rows 0..n-1 for this column
-    const byCol2 = {};
-    exitedCells.forEach(cell => {
-      if (!byCol2[cell.c]) byCol2[cell.c] = [];
-      byCol2[cell.c].push(cell.r);
-    });
-    // Animate all tiles in the column that shifted
+  // Animate entering tiles — one pass per affected column
+  const affectedCols = [...new Set(exitedCells.map(({ c }) => c))];
+  affectedCols.forEach(c => {
     for (let row = 0; row < 4; row++) {
       const el = document.getElementById(`tile-${row}-${c}`);
       if (!el) continue;
@@ -601,7 +421,7 @@ function updateUI() {
   document.getElementById('score-display').textContent = score.toLocaleString();
 
   if (currentMode === 'classic') {
-    const locked = grid.flat().filter(t => t.isLocked).length;
+    const locked = countLocked(grid);
     document.getElementById('stat2-value').textContent = `${locked} / 16`;
     if (locked === 16) showMessage(`All tiles locked! Final score: ${score}`, 0);
   }
