@@ -14,8 +14,8 @@
     "moduleDetection": "force",
     "noEmit": true,
 
-    /* Linting — tightened progressively; strict: true enabled in Phase 5 */
-    "strict": false,
+    /* Linting */
+    "strict": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
