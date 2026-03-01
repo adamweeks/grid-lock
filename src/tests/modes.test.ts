@@ -195,7 +195,7 @@ function makeBlitzCbs(overrides: Partial<BlitzCallbacks> = {}): BlitzCallbacks {
     showTimeAddBadge:   vi.fn(),
     updateComboBadge:   vi.fn(),
     exitTiles:          vi.fn().mockResolvedValue(undefined),
-    enterColumns:       vi.fn(),
+    enterCells:         vi.fn(),
     onGameOver:         vi.fn(),
     updateWordDisplay:  vi.fn(),
     setHintAvailable:   vi.fn(),

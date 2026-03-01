@@ -2,7 +2,7 @@ import type { Grid, Coord } from '../types/Cell.ts';
 import type { GameModeConfig } from '../types/GameMode.ts';
 import type { IGameMode } from './IGameMode.ts';
 import { WORDS } from '../data/wordList.ts';
-import { initBlitzGrid, pivotGrid, clearPulsing, cascadeColumn } from '../logic/GridEngine.ts';
+import { initBlitzGrid, pivotGrid, clearPulsing, refillCells } from '../logic/GridEngine.ts';
 import { detectBestWord, canExtendSelection, validateSelection } from '../logic/WordDetector.ts';
 import { scoreWordBlitz, timeBonus } from '../logic/Scoring.ts';
 
@@ -14,7 +14,7 @@ export interface BlitzCallbacks {
   showTimeAddBadge(seconds: number): void;
   updateComboBadge(combo: number): void;
   exitTiles(cells: Coord[]): Promise<void>;
-  enterColumns(cols: number[]): void;
+  enterCells(cells: Coord[]): void;
   onGameOver(score: number, wordsFound: number, bestCombo: number): void;
   updateWordDisplay(letters: string, canSubmit: boolean): void;
   setHintAvailable(available: boolean): void;
@@ -150,7 +150,7 @@ export class BlitzMode implements IGameMode {
 
     try {
       await this.cb.exitTiles(committedCells);
-      this._cascadeRefill(committedCells);
+      this._refillInPlace(committedCells);
     } finally {
       this.isCommitting = false;
     }
@@ -198,19 +198,10 @@ export class BlitzMode implements IGameMode {
     this.cb.updateComboBadge(this.combo);
   }
 
-  private _cascadeRefill(exitedCells: Coord[]): void {
-    const byCol: Record<number, number[]> = {};
-    exitedCells.forEach(({ r, c }) => {
-      if (!byCol[c]) byCol[c] = [];
-      byCol[c].push(r);
-    });
-    Object.entries(byCol).forEach(([col, rows]) => {
-      this.grid = cascadeColumn(this.grid, +col, rows);
-    });
-
+  private _refillInPlace(exitedCells: Coord[]): void {
+    this.grid = refillCells(this.grid, exitedCells);
     this.cb.syncUI();
-    const affectedCols = [...new Set(exitedCells.map(({ c }) => c))];
-    this.cb.enterColumns(affectedCols);
+    this.cb.enterCells(exitedCells);
     this._detectWords();
   }
 

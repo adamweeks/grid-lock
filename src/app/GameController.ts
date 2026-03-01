@@ -36,7 +36,7 @@ export class GameController {
       showTimeAddBadge:   (s)       => this.uiCtrl.showTimeAddBadge(s),
       updateComboBadge:   (c)       => this.uiCtrl.updateComboBadge(c),
       exitTiles:          (cells)   => this.animations.exitTiles(cells),
-      enterColumns:       (cols)    => this.animations.enterColumns(cols),
+      enterCells:         (cells)   => this.animations.enterCells(cells),
       onGameOver:         (s, w, b) => this.uiCtrl.showGameOver(s, w, b),
       updateWordDisplay:  (l, ok)   => this.uiCtrl.updateWordDisplay(l, ok),
       setHintAvailable:   (a)       => this.uiCtrl.setHintAvailable(a),

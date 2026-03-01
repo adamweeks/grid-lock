@@ -52,20 +52,13 @@ export function countLocked(grid: Grid): number {
 }
 
 /**
- * Rebuilds a column after Blitz cascade.
- * Removes the exited rows, shifts remaining cells down, fills the top with
- * new random letters. Returns a NEW grid.
+ * Replaces committed Blitz cells with new random letters at their original positions.
+ * Returns a NEW grid — does not mutate the input.
  */
-export function cascadeColumn(grid: Grid, col: number, exitedRows: number[]): Grid {
+export function refillCells(grid: Grid, cells: Coord[]): Grid {
   const next: Grid = grid.map(row => row.map(cell => ({ ...cell })));
-  const kept = [];
-  for (let r = 0; r < 4; r++) {
-    if (!exitedRows.includes(r)) kept.push({ ...grid[r][col] });
-  }
-  const newLetters = exitedRows.map(() => createCell(getRandomLetter()));
-  const newCol = [...newLetters, ...kept];
-  for (let r = 0; r < 4; r++) {
-    next[r][col] = { ...newCol[r], isLocked: false, isPulsing: false };
-  }
+  cells.forEach(({ r, c }) => {
+    next[r][c] = createCell(getRandomLetter());
+  });
   return next;
 }
