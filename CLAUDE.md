@@ -111,6 +111,7 @@ chore(deps): upgrade vitest to 2.2
 ```
 
 Rules:
+- **All commit messages must follow Conventional Commits format** (`type(scope): description`).
 - Description is lowercase, imperative mood, no trailing period.
 - Body (optional) explains *why*, not *what*.
 - Always include `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>` when Claude authors the commit.
@@ -149,6 +150,8 @@ chore/upgrade-vite-6
 ```
 
 Never commit directly to `main` for anything beyond a one-line documentation fix.
+
+**Before beginning any task:** create the appropriate feature branch first, then start work. Do not write code on `main` and move it to a branch later.
 
 ---
 
