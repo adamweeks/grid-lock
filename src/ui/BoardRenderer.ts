@@ -48,6 +48,8 @@ export class BoardRenderer {
           const btn = document.createElement('button');
           btn.className = 'pivot-btn';
           btn.innerHTML = '↻';
+          btn.dataset.pivotR = String(pr);
+          btn.dataset.pivotC = String(pc);
           btn.addEventListener('click', () => onPivotClick(pr, pc));
           wrapper.appendChild(btn);
           this.boardEl.appendChild(wrapper);

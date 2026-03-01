@@ -5,5 +5,6 @@ export default defineConfig({
   base: process.env.GITHUB_ACTIONS ? '/grid-lock/' : '/',
   test: {
     environment: 'node',
+    include: ['src/tests/**/*.test.ts'],
   },
 })
