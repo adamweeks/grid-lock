@@ -27,6 +27,9 @@ export class BoardRenderer {
     this.boardEl.style.width = '100%';
     this.boardEl.style.aspectRatio = '1 / 1';
 
+    let isDragging = false;
+    let lastDragCoord: { r: number; c: number } | null = null;
+
     for (let gr = 0; gr < 7; gr++) {
       for (let gc = 0; gc < 7; gc++) {
         const isTileRow = gr % 2 === 0;
@@ -38,7 +41,32 @@ export class BoardRenderer {
           el.id = `tile-${r}-${c}`;
           el.className = 'tile flex items-center justify-center rounded-lg m-1 font-black select-none';
           el.style.fontSize = 'clamp(1rem, 5vw, 1.75rem)';
-          el.addEventListener('click', () => onTileClick(r, c));
+
+          el.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            el.setPointerCapture(e.pointerId);
+            isDragging = true;
+            lastDragCoord = { r, c };
+            onTileClick(r, c);
+          });
+
+          el.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            const target = document.elementFromPoint(e.clientX, e.clientY);
+            const match = target?.id.match(/^tile-(\d+)-(\d+)$/);
+            if (!match) return;
+            const nr = parseInt(match[1], 10);
+            const nc = parseInt(match[2], 10);
+            if (!lastDragCoord || nr !== lastDragCoord.r || nc !== lastDragCoord.c) {
+              lastDragCoord = { r: nr, c: nc };
+              onTileClick(nr, nc);
+            }
+          });
+
+          const endDrag = () => { isDragging = false; lastDragCoord = null; };
+          el.addEventListener('pointerup', endDrag);
+          el.addEventListener('pointercancel', endDrag);
+
           this.boardEl.appendChild(el);
 
         } else if (!isTileRow && !isTileCol) {
