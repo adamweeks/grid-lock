@@ -102,7 +102,11 @@ export class BlitzMode implements IGameMode {
   }
 
   onHint(): void {
-    if (this.isCommitting || !this.pendingWord) return;
+    if (this.isCommitting) return;
+    if (!this.pendingWord) {
+      this.cb.showScoreNotification('No words found', 1200);
+      return;
+    }
 
     this.timeLeft = Math.max(0, this.timeLeft - HINT_COST);
     this.cb.updateTimerDisplay(this.timeLeft);

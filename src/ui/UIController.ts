@@ -139,8 +139,8 @@ export class UIController {
     this.btnSubmitWord.style.flex = '2 1 0%';
   }
 
-  setHintAvailable(available: boolean) {
-    this.btnHint.disabled = !available;
+  setHintAvailable(_available: boolean) {
+    // hint availability is intentionally not exposed via button state
   }
 
   applyClassicModeUI() {
@@ -165,7 +165,6 @@ export class UIController {
     this.instBlitz.classList.remove('hidden');
     this.classicBuilder.classList.remove('hidden');
     this.btnHint.classList.remove('hidden');
-    this.btnHint.disabled = true;
   }
 
   showScreen(id: 'screen-select' | 'screen-game') {
