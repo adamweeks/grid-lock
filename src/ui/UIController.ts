@@ -82,8 +82,9 @@ export class UIController {
   }
 
   showTimeAddBadge(seconds: number) {
-    this.timeAddBadge.textContent = `+${seconds}s`;
-    this.timeAddBadge.classList.remove('hidden', 'time-badge');
+    this.timeAddBadge.textContent = seconds > 0 ? `+${seconds}s` : `${seconds}s`;
+    this.timeAddBadge.classList.remove('hidden', 'time-badge', 'text-green-400', 'text-red-400');
+    this.timeAddBadge.classList.add(seconds > 0 ? 'text-green-400' : 'text-red-400');
     void this.timeAddBadge.offsetWidth;
     this.timeAddBadge.classList.add('time-badge');
     this.timeAddBadge.addEventListener(

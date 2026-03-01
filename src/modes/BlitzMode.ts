@@ -106,7 +106,7 @@ export class BlitzMode implements IGameMode {
 
     this.timeLeft = Math.max(0, this.timeLeft - HINT_COST);
     this.cb.updateTimerDisplay(this.timeLeft);
-    this.cb.showMessage(`Hint! -${HINT_COST}s`, 1200);
+    this.cb.showTimeAddBadge(-HINT_COST);
 
     this.selection = [...this.pendingWord.cells];
     this._refreshWordDisplay();
