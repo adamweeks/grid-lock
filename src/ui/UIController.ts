@@ -21,6 +21,7 @@ export class UIController {
   private readonly classicBuilder = el('classic-builder');
   private readonly wordDisplay    = el('word-display');
   private readonly btnSubmitWord  = el<HTMLButtonElement>('btn-submit-word');
+  private readonly btnHint        = el<HTMLButtonElement>('btn-hint');
   private readonly instClassic    = el('instructions-classic');
   private readonly instBlitz      = el('instructions-blitz');
   private readonly screenSelect   = el('screen-select');
@@ -119,6 +120,10 @@ export class UIController {
     this.btnSubmitWord.style.flex = '2 1 0%';
   }
 
+  setHintAvailable(available: boolean) {
+    this.btnHint.disabled = !available;
+  }
+
   applyClassicModeUI() {
     this.stat2Label.textContent    = 'Locked';
     this.stat2Value.className      = 'text-2xl font-bold text-slate-200';
@@ -128,6 +133,7 @@ export class UIController {
     this.instBlitz.classList.add('hidden');
     this.timeAddBadge.classList.add('hidden');
     this.classicBuilder.classList.remove('hidden');
+    this.btnHint.classList.add('hidden');
   }
 
   applyBlitzModeUI() {
@@ -138,7 +144,9 @@ export class UIController {
     this.comboBar.classList.remove('hidden');
     this.instClassic.classList.add('hidden');
     this.instBlitz.classList.remove('hidden');
-    this.classicBuilder.classList.add('hidden');
+    this.classicBuilder.classList.remove('hidden');
+    this.btnHint.classList.remove('hidden');
+    this.btnHint.disabled = true;
   }
 
   showScreen(id: 'screen-select' | 'screen-game') {

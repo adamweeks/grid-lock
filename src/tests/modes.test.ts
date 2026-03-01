@@ -197,6 +197,8 @@ function makeBlitzCbs(overrides: Partial<BlitzCallbacks> = {}): BlitzCallbacks {
     exitTiles:          vi.fn().mockResolvedValue(undefined),
     enterColumns:       vi.fn(),
     onGameOver:         vi.fn(),
+    updateWordDisplay:  vi.fn(),
+    setHintAvailable:   vi.fn(),
     ...overrides,
   };
 }

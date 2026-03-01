@@ -3,7 +3,7 @@ import type { GameModeConfig } from '../types/GameMode.ts';
 import type { IGameMode } from './IGameMode.ts';
 import { WORDS } from '../data/wordList.ts';
 import { initBlitzGrid, pivotGrid, clearPulsing, cascadeColumn } from '../logic/GridEngine.ts';
-import { detectBestWord } from '../logic/WordDetector.ts';
+import { detectBestWord, canExtendSelection, validateSelection } from '../logic/WordDetector.ts';
 import { scoreWordBlitz, timeBonus } from '../logic/Scoring.ts';
 
 export interface BlitzCallbacks {
@@ -16,11 +16,14 @@ export interface BlitzCallbacks {
   exitTiles(cells: Coord[]): Promise<void>;
   enterColumns(cols: number[]): void;
   onGameOver(score: number, wordsFound: number, bestCombo: number): void;
+  updateWordDisplay(letters: string, canSubmit: boolean): void;
+  setHintAvailable(available: boolean): void;
 }
 
 const COMBO_WINDOW = 4000;
 const MAX_COMBO    = 4;
 const MAX_TIME     = 99;
+const HINT_COST    = 5;
 
 export class BlitzMode implements IGameMode {
   readonly config: GameModeConfig = {
@@ -28,7 +31,7 @@ export class BlitzMode implements IGameMode {
     stat2Label: 'Time',
     stat2InitialValue: '1:00',
     showComboBar: true,
-    showClassicBuilder: false,
+    showClassicBuilder: true,
     instructionsVariant: 'blitz',
   };
 
@@ -39,20 +42,25 @@ export class BlitzMode implements IGameMode {
   private bestCombo = 1;
   private wordsFound = 0;
   private pendingWord: { word: string; cells: Coord[] } | null = null;
+  private selection: Coord[] = [];
+  private isCommitting = false;
   private interval: ReturnType<typeof setInterval> | null = null;
   private comboTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private readonly cb: BlitzCallbacks) {}
 
   start(): void {
-    this.grid       = initBlitzGrid();
-    this.score      = 0;
-    this.timeLeft   = 60;
-    this.combo      = 1;
-    this.bestCombo  = 1;
-    this.wordsFound = 0;
-    this.pendingWord = null;
+    this.grid        = initBlitzGrid();
+    this.score       = 0;
+    this.timeLeft    = 60;
+    this.combo       = 1;
+    this.bestCombo   = 1;
+    this.wordsFound  = 0;
+    this.pendingWord  = null;
+    this.selection    = [];
+    this.isCommitting = false;
     this.cb.updateComboBadge(this.combo);
+    this.cb.updateWordDisplay('', false);
     this.cb.syncUI();
     this._detectWords();
     this.interval = setInterval(() => this._tick(), 1000);
@@ -66,47 +74,98 @@ export class BlitzMode implements IGameMode {
   }
 
   onPivot(pr: number, pc: number): void {
+    if (this.isCommitting) return;
     this.grid = pivotGrid(this.grid, pr, pc);
     this.pendingWord = null;
-    this.grid = clearPulsing(this.grid);
+    this.selection = [];
+    this.cb.updateWordDisplay('', false);
     this._detectWords();
     this.cb.syncUI();
   }
 
   onTileClick(r: number, c: number): void {
-    if (this.grid[r][c].isPulsing) void this.onCommit();
+    if (this.isCommitting) return;
+    const existingIdx = this.selection.findIndex(s => s.r === r && s.c === c);
+    if (existingIdx !== -1) {
+      this.selection = this.selection.slice(0, existingIdx);
+      this._refreshWordDisplay();
+      this.cb.syncUI();
+      return;
+    }
+
+    if (!canExtendSelection(this.grid, this.selection, r, c)) return;
+
+    this.selection = [...this.selection, { r, c }];
+    this._refreshWordDisplay();
+    this.cb.syncUI();
+  }
+
+  onHint(): void {
+    if (this.isCommitting || !this.pendingWord) return;
+
+    this.timeLeft = Math.max(0, this.timeLeft - HINT_COST);
+    this.cb.updateTimerDisplay(this.timeLeft);
+    this.cb.showMessage(`Hint! -${HINT_COST}s`, 1200);
+
+    this.selection = [...this.pendingWord.cells];
+    this._refreshWordDisplay();
+    this.cb.syncUI();
+
+    if (this.timeLeft <= 0) this._endGame();
   }
 
   async onCommit(): Promise<void> {
-    if (!this.pendingWord) return;
+    if (this.isCommitting || this.selection.length < 3) return;
+    const word = this.selection.map(({ r, c }) => this.grid[r][c].letter).join('');
 
-    const earnedPts  = scoreWordBlitz(this.pendingWord.word, this.combo);
-    const addedTime  = timeBonus(this.pendingWord.word);
-    const lockedCells = [...this.pendingWord.cells];
+    if (!validateSelection(this.grid, this.selection, WORDS)) {
+      this.cb.showMessage(`"${word}" is not a valid word.`, 1500);
+      this.selection = [];
+      this._refreshWordDisplay();
+      this.cb.syncUI();
+      return;
+    }
+
+    this.isCommitting = true;
+    const committedCells = [...this.selection];
+    const usedCombo = this.combo;
+    const earnedPts = scoreWordBlitz(word, usedCombo);
+    const addedTime = timeBonus(word);
 
     this.grid = clearPulsing(this.grid);
     this.score += earnedPts;
     this.wordsFound++;
     this.pendingWord = null;
+    this.selection = [];
+    this._refreshWordDisplay();
 
     this._addTime(addedTime);
     this._advanceCombo();
 
     this.cb.syncUI();
     this.cb.showMessage(
-      `+${earnedPts} pts${this.combo > 1 ? ` (x${this.combo} combo!)` : ''}`,
+      `+${earnedPts} pts${usedCombo > 1 ? ` (x${usedCombo} combo!)` : ''}`,
       1800,
     );
 
-    await this.cb.exitTiles(lockedCells);
-    this._cascadeRefill(lockedCells);
+    try {
+      await this.cb.exitTiles(committedCells);
+      this._cascadeRefill(committedCells);
+    } finally {
+      this.isCommitting = false;
+    }
   }
 
-  onClearSelection(): void { /* no-op in Blitz */ }
+  onClearSelection(): void {
+    this.selection = [];
+    this.grid = clearPulsing(this.grid);
+    this._refreshWordDisplay();
+    this.cb.syncUI();
+  }
 
   getGrid(): Grid        { return this.grid; }
   getScore(): number     { return this.score; }
-  getSelection(): Coord[] { return []; }
+  getSelection(): Coord[] { return this.selection; }
 
   getStat2Value(): string {
     const mins = Math.floor(this.timeLeft / 60);
@@ -156,15 +215,14 @@ export class BlitzMode implements IGameMode {
   }
 
   private _detectWords(): void {
-    this.grid = clearPulsing(this.grid);
     const match = detectBestWord(this.grid, WORDS);
     this.pendingWord = match;
-    if (match) {
-      match.cells.forEach(({ r, c }) => { this.grid[r][c].isPulsing = true; });
-      this.cb.showMessage(`"${match.word.toUpperCase()}" detected! Tap to commit.`);
-    } else {
-      this.cb.hideMessage();
-    }
+    this.cb.setHintAvailable(match !== null);
+  }
+
+  private _refreshWordDisplay(): void {
+    const letters = this.selection.map(({ r, c }) => this.grid[r][c].letter).join(' → ');
+    this.cb.updateWordDisplay(letters, this.selection.length >= 3);
   }
 
   private _endGame(): void {

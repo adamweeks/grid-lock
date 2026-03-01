@@ -86,6 +86,10 @@
           class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold py-2 rounded-xl text-sm transition-colors border border-slate-600">
           Clear
         </button>
+        <button id="btn-hint" disabled
+          class="hidden flex-1 bg-orange-900 hover:bg-orange-800 text-orange-300 font-bold py-2 rounded-xl text-sm transition-colors border border-orange-700 disabled:opacity-40 disabled:cursor-not-allowed">
+          Hint (-5s)
+        </button>
         <button id="btn-submit-word" disabled
           class="font-black py-2 rounded-xl text-sm border transition-colors bg-indigo-800 text-indigo-400 border-indigo-700"
           style="flex: 2 1 0%">
@@ -101,9 +105,10 @@
       <p><span class="text-slate-300 font-bold">Locked tiles</span> (dark) can't be used again.</p>
     </div>
     <div id="instructions-blitz" class="hidden w-full mt-4 bg-slate-800 rounded-xl p-3 text-slate-400 text-xs space-y-1">
-      <p>⏱ Commit words before time runs out. Each word <span class="text-green-400 font-bold">adds time!</span></p>
+      <p><span class="text-indigo-300 font-bold">Tap tiles</span> to spell a word (3–4 in a row or column), then hit Submit.</p>
+      <p>⏱ Each committed word <span class="text-green-400 font-bold">adds time</span> — don't let the clock hit zero!</p>
+      <p>💡 Stuck? <span class="text-orange-400 font-bold">Hint</span> reveals a valid word at a -5s penalty.</p>
       <p>⚡ Fast commits build a <span class="text-orange-400 font-bold">combo multiplier</span> (up to 4×).</p>
-      <p>🔄 Committed tiles <span class="text-slate-300 font-bold">cascade out</span> — board always stays full.</p>
     </div>
   </div>
 

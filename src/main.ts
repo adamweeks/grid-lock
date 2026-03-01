@@ -27,6 +27,7 @@ document.getElementById('btn-blitz').addEventListener('click', () => {
 
 document.getElementById('btn-submit-word').addEventListener('click', () => ctrl.commit());
 document.getElementById('btn-clear-selection').addEventListener('click', () => ctrl.clearSelection());
+document.getElementById('btn-hint').addEventListener('click', () => ctrl.hint());
 document.getElementById('reset-btn').addEventListener('click', () => ctrl.reset());
 
 document.getElementById('btn-back').addEventListener('click', () => {

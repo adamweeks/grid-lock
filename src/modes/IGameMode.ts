@@ -9,6 +9,7 @@ export interface IGameMode {
   onTileClick(r: number, c: number): void;
   onCommit(): void | Promise<void>;
   onClearSelection(): void;
+  onHint?(): void;
   getGrid(): Grid;
   getScore(): number;
   getStat2Value(): string;

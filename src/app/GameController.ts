@@ -38,6 +38,8 @@ export class GameController {
       exitTiles:          (cells)   => this.animations.exitTiles(cells),
       enterColumns:       (cols)    => this.animations.enterColumns(cols),
       onGameOver:         (s, w, b) => this.uiCtrl.showGameOver(s, w, b),
+      updateWordDisplay:  (l, ok)   => this.uiCtrl.updateWordDisplay(l, ok),
+      setHintAvailable:   (a)       => this.uiCtrl.setHintAvailable(a),
     }));
   }
 
@@ -47,6 +49,10 @@ export class GameController {
 
   clearSelection(): void {
     this.activeMode?.onClearSelection();
+  }
+
+  hint(): void {
+    this.activeMode?.onHint?.();
   }
 
   reset(): void {
@@ -65,7 +71,7 @@ export class GameController {
     this.board.render(
       this.activeMode.getGrid(),
       this.activeMode.getSelection(),
-      this.activeMode.config.id === 'classic',
+      true,
     );
     this.uiCtrl.updateScore(this.activeMode.getScore());
     this.uiCtrl.updateStat2Value(this.activeMode.getStat2Value());
