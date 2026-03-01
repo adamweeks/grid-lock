@@ -21,10 +21,11 @@ import type { BlitzCallbacks } from '../modes/BlitzMode.ts';
 
 function makeClassicCbs(overrides: Partial<ClassicCallbacks> = {}): ClassicCallbacks {
   return {
-    showMessage:       vi.fn(),
-    hideMessage:       vi.fn(),
-    syncUI:            vi.fn(),
-    updateWordDisplay: vi.fn(),
+    showMessage:           vi.fn(),
+    hideMessage:           vi.fn(),
+    syncUI:                vi.fn(),
+    updateWordDisplay:     vi.fn(),
+    showScoreNotification: vi.fn(),
     ...overrides,
   };
 }
@@ -151,7 +152,7 @@ describe('ClassicMode', () => {
     mode.onCommit();
     expect(mode.getScore()).toBe(100);
     expect(mode.getGrid()[0][1].isLocked).toBe(true);
-    expect(cb.showMessage).toHaveBeenCalledWith(expect.stringContaining('+100'), 2000);
+    expect(cb.showScoreNotification).toHaveBeenCalledWith(expect.stringContaining('+100'), 2000);
   });
 
   it('onCommit with valid 4-letter word (STAR) scores 500', () => {
@@ -188,17 +189,18 @@ describe('ClassicMode', () => {
 
 function makeBlitzCbs(overrides: Partial<BlitzCallbacks> = {}): BlitzCallbacks {
   return {
-    showMessage:        vi.fn(),
-    hideMessage:        vi.fn(),
-    syncUI:             vi.fn(),
-    updateTimerDisplay: vi.fn(),
-    showTimeAddBadge:   vi.fn(),
-    updateComboBadge:   vi.fn(),
-    exitTiles:          vi.fn().mockResolvedValue(undefined),
-    enterCells:         vi.fn(),
-    onGameOver:         vi.fn(),
-    updateWordDisplay:  vi.fn(),
-    setHintAvailable:   vi.fn(),
+    showMessage:           vi.fn(),
+    hideMessage:           vi.fn(),
+    syncUI:                vi.fn(),
+    updateTimerDisplay:    vi.fn(),
+    showTimeAddBadge:      vi.fn(),
+    updateComboBadge:      vi.fn(),
+    exitTiles:             vi.fn().mockResolvedValue(undefined),
+    enterCells:            vi.fn(),
+    onGameOver:            vi.fn(),
+    updateWordDisplay:     vi.fn(),
+    setHintAvailable:      vi.fn(),
+    showScoreNotification: vi.fn(),
     ...overrides,
   };
 }

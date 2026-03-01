@@ -99,10 +99,18 @@ body {
   .mode-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(99,102,241,.4); }
 }
 
+/* ── Score notification pop ─────────────── */
+@keyframes score-pop {
+  0%   { transform: scale(0.8); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.score-notif { animation: score-pop .22s ease-out forwards; }
+
 /* ── Reduced motion ──────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .tile-spinning, .tile-exiting, .tile-entering,
-  .combo-pop, .timer-urgent, .time-badge, .tile-pulse {
+  .combo-pop, .timer-urgent, .time-badge, .tile-pulse, .score-notif {
     animation: none;
   }
   .tile, .pivot-btn, .mode-card {

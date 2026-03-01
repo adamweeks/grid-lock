@@ -20,26 +20,28 @@ export class GameController {
 
   startClassic(): void {
     this._startMode(new ClassicMode({
-      showMessage:       (t, ms) => this.uiCtrl.showMessage(t, ms),
-      hideMessage:       ()      => this.uiCtrl.hideMessage(),
-      syncUI:            ()      => this.syncUI(),
-      updateWordDisplay: (l, ok) => this.uiCtrl.updateWordDisplay(l, ok),
+      showMessage:           (t, ms)   => this.uiCtrl.showMessage(t, ms),
+      hideMessage:           ()        => this.uiCtrl.hideMessage(),
+      syncUI:                ()        => this.syncUI(),
+      updateWordDisplay:     (l, ok)   => this.uiCtrl.updateWordDisplay(l, ok),
+      showScoreNotification: (t, ms)   => this.uiCtrl.showScoreNotification(t, ms),
     }));
   }
 
   startBlitz(): void {
     this._startMode(new BlitzMode({
-      showMessage:        (t, ms)   => this.uiCtrl.showMessage(t, ms),
-      hideMessage:        ()        => this.uiCtrl.hideMessage(),
-      syncUI:             ()        => this.syncUI(),
-      updateTimerDisplay: (t)       => this.uiCtrl.updateTimerDisplay(t),
-      showTimeAddBadge:   (s)       => this.uiCtrl.showTimeAddBadge(s),
-      updateComboBadge:   (c)       => this.uiCtrl.updateComboBadge(c),
-      exitTiles:          (cells)   => this.animations.exitTiles(cells),
-      enterCells:         (cells)   => this.animations.enterCells(cells),
-      onGameOver:         (s, w, b) => this.uiCtrl.showGameOver(s, w, b),
-      updateWordDisplay:  (l, ok)   => this.uiCtrl.updateWordDisplay(l, ok),
-      setHintAvailable:   (a)       => this.uiCtrl.setHintAvailable(a),
+      showMessage:           (t, ms)   => this.uiCtrl.showMessage(t, ms),
+      hideMessage:           ()        => this.uiCtrl.hideMessage(),
+      syncUI:                ()        => this.syncUI(),
+      updateTimerDisplay:    (t)       => this.uiCtrl.updateTimerDisplay(t),
+      showTimeAddBadge:      (s)       => this.uiCtrl.showTimeAddBadge(s),
+      updateComboBadge:      (c)       => this.uiCtrl.updateComboBadge(c),
+      exitTiles:             (cells)   => this.animations.exitTiles(cells),
+      enterCells:            (cells)   => this.animations.enterCells(cells),
+      onGameOver:            (s, w, b) => this.uiCtrl.showGameOver(s, w, b),
+      updateWordDisplay:     (l, ok)   => this.uiCtrl.updateWordDisplay(l, ok),
+      setHintAvailable:      (a)       => this.uiCtrl.setHintAvailable(a),
+      showScoreNotification: (t, ms)   => this.uiCtrl.showScoreNotification(t, ms),
     }));
   }
 

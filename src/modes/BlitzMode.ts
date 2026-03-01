@@ -18,6 +18,7 @@ export interface BlitzCallbacks {
   onGameOver(score: number, wordsFound: number, bestCombo: number): void;
   updateWordDisplay(letters: string, canSubmit: boolean): void;
   setHintAvailable(available: boolean): void;
+  showScoreNotification(text: string, durationMs?: number): void;
 }
 
 const COMBO_WINDOW = 4000;
@@ -143,7 +144,7 @@ export class BlitzMode implements IGameMode {
     this._advanceCombo();
 
     this.cb.syncUI();
-    this.cb.showMessage(
+    this.cb.showScoreNotification(
       `+${earnedPts} pts${usedCombo > 1 ? ` (x${usedCombo} combo!)` : ''}`,
       1800,
     );
