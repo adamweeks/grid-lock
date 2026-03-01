@@ -28,17 +28,15 @@ export class AnimationPlayer {
     });
   }
 
-  /** Animate entering tiles for each column that was affected by a cascade. */
-  enterColumns(affectedCols: number[]) {
-    affectedCols.forEach(c => {
-      for (let row = 0; row < 4; row++) {
-        const el = document.getElementById(`tile-${row}-${c}`);
-        if (!el) continue;
-        el.classList.remove('tile-entering');
-        void el.offsetWidth;
-        el.classList.add('tile-entering');
-        el.addEventListener('animationend', () => el.classList.remove('tile-entering'), { once: true });
-      }
+  /** Animate specific tiles entering (in-place Blitz refill). Clears exit state first. */
+  enterCells(cells: Coord[]) {
+    cells.forEach(({ r, c }) => {
+      const el = document.getElementById(`tile-${r}-${c}`);
+      if (!el) return;
+      el.classList.remove('tile-exiting', 'tile-entering');
+      void el.offsetWidth;
+      el.classList.add('tile-entering');
+      el.addEventListener('animationend', () => el.classList.remove('tile-entering'), { once: true });
     });
   }
 }
