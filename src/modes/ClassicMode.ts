@@ -11,7 +11,7 @@ export interface ClassicCallbacks {
   hideMessage(): void;
   syncUI(): void;
   updateWordDisplay(letters: string, canSubmit: boolean): void;
-  showScoreNotification(text: string, durationMs?: number): void;
+  showScoreNotification(text: string, durationMs?: number, isError?: boolean): void;
 }
 
 export class ClassicMode implements IGameMode {
@@ -71,9 +71,8 @@ export class ClassicMode implements IGameMode {
     const word = this.selection.map(({ r, c }) => this.grid[r][c].letter).join('');
 
     if (!validateSelection(this.grid, this.selection, WORDS)) {
-      this.cb.showMessage(`"${word}" is not a valid word.`, 1500);
+      this.cb.showScoreNotification(`"${word}" is not a valid word`, 1500, true);
       this.selection = [];
-      this._refreshWordDisplay();
       this.cb.syncUI();
       return;
     }

@@ -134,9 +134,10 @@ describe('ClassicMode', () => {
     mode.onTileClick(2, 1); // A
     mode.onTileClick(2, 2); // K  — "RAK" not a word
     mode.onCommit();
-    expect(cb.showMessage).toHaveBeenCalledWith(
+    expect(cb.showScoreNotification).toHaveBeenCalledWith(
       expect.stringContaining('not a valid word'),
       1500,
+      true,
     );
     expect(mode.getSelection()).toHaveLength(0);
     expect(mode.getScore()).toBe(0);

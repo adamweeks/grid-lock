@@ -18,7 +18,7 @@ export interface BlitzCallbacks {
   onGameOver(score: number, wordsFound: number, bestCombo: number): void;
   updateWordDisplay(letters: string, canSubmit: boolean): void;
   setHintAvailable(available: boolean): void;
-  showScoreNotification(text: string, durationMs?: number): void;
+  showScoreNotification(text: string, durationMs?: number, isError?: boolean): void;
 }
 
 const COMBO_WINDOW = 4000;
@@ -104,7 +104,7 @@ export class BlitzMode implements IGameMode {
   onHint(): void {
     if (this.isCommitting) return;
     if (!this.pendingWord) {
-      this.cb.showScoreNotification('No words found', 1200);
+      this.cb.showScoreNotification('No words found', 1200, true);
       return;
     }
 
@@ -124,9 +124,8 @@ export class BlitzMode implements IGameMode {
     const word = this.selection.map(({ r, c }) => this.grid[r][c].letter).join('');
 
     if (!validateSelection(this.grid, this.selection, WORDS)) {
-      this.cb.showMessage(`"${word}" is not a valid word.`, 1500);
+      this.cb.showScoreNotification(`"${word}" is not a valid word`, 1500, true);
       this.selection = [];
-      this._refreshWordDisplay();
       this.cb.syncUI();
       return;
     }

@@ -24,7 +24,7 @@ export class GameController {
       hideMessage:           ()        => this.uiCtrl.hideMessage(),
       syncUI:                ()        => this.syncUI(),
       updateWordDisplay:     (l, ok)   => this.uiCtrl.updateWordDisplay(l, ok),
-      showScoreNotification: (t, ms)   => this.uiCtrl.showScoreNotification(t, ms),
+      showScoreNotification: (t, ms, e) => this.uiCtrl.showScoreNotification(t, ms, e),
     }));
   }
 
@@ -41,7 +41,7 @@ export class GameController {
       onGameOver:            (s, w, b) => this.uiCtrl.showGameOver(s, w, b),
       updateWordDisplay:     (l, ok)   => this.uiCtrl.updateWordDisplay(l, ok),
       setHintAvailable:      (a)       => this.uiCtrl.setHintAvailable(a),
-      showScoreNotification: (t, ms)   => this.uiCtrl.showScoreNotification(t, ms),
+      showScoreNotification: (t, ms, e) => this.uiCtrl.showScoreNotification(t, ms, e),
     }));
   }
 

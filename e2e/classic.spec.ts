@@ -179,15 +179,15 @@ test.describe('Classic mode', () => {
 
   // ── Invalid word ───────────────────────────────────────────────────────
 
-  test('submitting an invalid word shows error message', async ({ page }) => {
+  test('submitting an invalid word shows error message in word display', async ({ page }) => {
     // RAK is not a valid Scrabble word
     await page.click('#tile-2-0'); // R
     await page.click('#tile-2-1'); // A
     await page.click('#tile-2-2'); // K
     await page.click('#btn-submit-word');
 
-    await expect(page.locator('#message-banner')).toBeVisible();
-    await expect(page.locator('#message-banner')).toContainText('not a valid word');
+    await expect(page.locator('#word-display')).toContainText('not a valid word');
+    await expect(page.locator('#message-banner')).toBeHidden();
   });
 
   test('invalid word does not change score', async ({ page }) => {
@@ -199,12 +199,13 @@ test.describe('Classic mode', () => {
     await expect(page.locator('#score-display')).toHaveText('0');
   });
 
-  test('invalid word submission clears selection', async ({ page }) => {
+  test('invalid word submission clears selection after error dismisses', async ({ page }) => {
     await page.click('#tile-2-0'); // R
     await page.click('#tile-2-1'); // A
     await page.click('#tile-2-2'); // K
     await page.click('#btn-submit-word');
 
+    // Error shows in word-display for ~1500ms then auto-dismisses
     await expect(page.locator('#word-display')).toContainText('tap tiles to select');
     await expect(page.locator('#btn-submit-word')).toBeDisabled();
   });

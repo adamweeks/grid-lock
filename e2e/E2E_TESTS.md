@@ -72,9 +72,9 @@ Initial grid (deterministic): Row 0 = `S T A R`, Row 3 = `S L A P`.
 
 | Test | What it verifies |
 |------|-----------------|
-| submitting an invalid word shows error message | `#message-banner` visible with "not a valid word" |
+| submitting an invalid word shows error message in word display | `#word-display` contains "not a valid word" (red text); `#message-banner` hidden |
 | invalid word does not change score | `#score-display` stays "0" |
-| invalid word submission clears selection | `#word-display` resets; submit disabled |
+| invalid word submission clears selection after error dismisses | `#word-display` resets to placeholder after ~1.5s; submit disabled |
 
 ### Pivot buttons
 

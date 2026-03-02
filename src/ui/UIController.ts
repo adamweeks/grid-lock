@@ -108,10 +108,11 @@ export class UIController {
     this.messageBanner.classList.add('hidden');
   }
 
-  showScoreNotification(text: string, durationMs = 0): void {
+  showScoreNotification(text: string, durationMs = 0, isError = false): void {
     if (this._scoreNotifTimer !== null) clearTimeout(this._scoreNotifTimer);
     this.wordDisplay.textContent = text;
-    this.wordDisplay.className = 'w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-2 text-center text-lg font-black tracking-widest text-yellow-400 min-h-[2.75rem] score-notif';
+    const color = isError ? 'text-red-400' : 'text-yellow-400';
+    this.wordDisplay.className = `w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-2 text-center text-lg font-black tracking-widest ${color} min-h-[2.75rem] score-notif`;
     this.btnClearSelection.classList.add('hidden');
     this.btnSubmitWord.disabled = true;
     this.btnSubmitWord.className = 'font-black py-2 rounded-xl text-sm border transition-colors bg-indigo-800 text-indigo-400 border-indigo-700';
