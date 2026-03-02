@@ -20,11 +20,13 @@ export class GameController {
 
   startClassic(): void {
     this._startMode(new ClassicMode({
-      showMessage:           (t, ms)   => this.uiCtrl.showMessage(t, ms),
-      hideMessage:           ()        => this.uiCtrl.hideMessage(),
-      syncUI:                ()        => this.syncUI(),
-      updateWordDisplay:     (l, ok)   => this.uiCtrl.updateWordDisplay(l, ok),
+      showMessage:           (t, ms)    => this.uiCtrl.showMessage(t, ms),
+      hideMessage:           ()         => this.uiCtrl.hideMessage(),
+      syncUI:                ()         => this.syncUI(),
+      updateWordDisplay:     (l, ok)    => this.uiCtrl.updateWordDisplay(l, ok),
       showScoreNotification: (t, ms, e) => this.uiCtrl.showScoreNotification(t, ms, e),
+      onGameComplete:        (s, w, sp) => this.uiCtrl.showClassicGameOver(s, w, sp),
+      updateSpinDisplay:     (sp)       => this.uiCtrl.updateSpinDisplay(sp),
     }));
   }
 
