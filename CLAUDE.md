@@ -81,6 +81,8 @@ npm run build     # tsc type check + Vite production build
 - **Mode tests** provide a full `ClassicCallbacks` / `BlitzCallbacks` mock object. Test the public interface (`getScore()`, `getSelection()`, `getStat2Value()`), not private state.
 - Always run `npm run test -- --run` before committing.
 - The build (`npm run build`) runs `tsc` first — a passing build means zero TypeScript errors under `strict: true`.
+- **E2E tests live in** `e2e/` and run with `npm run test:e2e`. Always run E2E tests locally before committing.
+- **`e2e/E2E_TESTS.md` must be kept in sync** — update it whenever a Playwright test is added, removed, or renamed.
 
 **Target: all tests green, build passes, JS bundle < 50 kB gzip.**
 

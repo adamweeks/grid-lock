@@ -62,12 +62,22 @@ test.describe('Classic mode', () => {
     await expect(page.locator('#btn-submit-word')).not.toBeDisabled();
   });
 
-  test('clear button empties selection', async ({ page }) => {
+  test('clear button (✕) is hidden before any selection', async ({ page }) => {
+    await expect(page.locator('#btn-clear-selection')).toBeHidden();
+  });
+
+  test('clear button (✕) appears after a tile is selected', async ({ page }) => {
+    await page.click('#tile-0-0');
+    await expect(page.locator('#btn-clear-selection')).toBeVisible();
+  });
+
+  test('clear button empties selection and hides itself', async ({ page }) => {
     await page.click('#tile-0-0'); // S
     await page.click('#tile-0-1'); // T
     await page.click('#btn-clear-selection');
     await expect(page.locator('#word-display')).toContainText('tap tiles to select');
     await expect(page.locator('#btn-submit-word')).toBeDisabled();
+    await expect(page.locator('#btn-clear-selection')).toBeHidden();
   });
 
   test('re-tapping a selected tile truncates selection back to it', async ({ page }) => {
@@ -114,24 +124,34 @@ test.describe('Classic mode', () => {
     }
   });
 
-  test('message banner shows +500 pts after STAR commit', async ({ page }) => {
+  test('word display shows score notification after STAR commit', async ({ page }) => {
     await page.click('#tile-0-0');
     await page.click('#tile-0-1');
     await page.click('#tile-0-2');
     await page.click('#tile-0-3');
     await page.click('#btn-submit-word');
 
-    await expect(page.locator('#message-banner')).toBeVisible();
-    await expect(page.locator('#message-banner')).toContainText('+500 pts');
+    await expect(page.locator('#word-display')).toContainText('+500 pts');
   });
 
-  test('word display resets to placeholder after STAR commit', async ({ page }) => {
+  test('message banner is NOT shown for valid word score', async ({ page }) => {
     await page.click('#tile-0-0');
     await page.click('#tile-0-1');
     await page.click('#tile-0-2');
     await page.click('#tile-0-3');
     await page.click('#btn-submit-word');
 
+    await expect(page.locator('#message-banner')).toBeHidden();
+  });
+
+  test('word display resets to placeholder after score notification expires', async ({ page }) => {
+    await page.click('#tile-0-0');
+    await page.click('#tile-0-1');
+    await page.click('#tile-0-2');
+    await page.click('#tile-0-3');
+    await page.click('#btn-submit-word');
+
+    // Notification auto-dismisses after 2000 ms; Playwright retries until it passes
     await expect(page.locator('#word-display')).toContainText('tap tiles to select');
   });
 

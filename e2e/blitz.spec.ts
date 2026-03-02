@@ -24,6 +24,10 @@ test.describe('Blitz mode', () => {
     await expect(page.locator('#btn-hint')).toBeVisible();
   });
 
+  test('hint button is never disabled regardless of word availability', async ({ page }) => {
+    await expect(page.locator('#btn-hint')).not.toBeDisabled();
+  });
+
   test('score starts at 0', async ({ page }) => {
     await expect(page.locator('#score-display')).toHaveText('0');
   });
