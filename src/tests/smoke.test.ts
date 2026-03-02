@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { createCell, pivotGrid } from '../logic/GridEngine.ts';
+import { createCell, pivotGrid, ensurePlayable } from '../logic/GridEngine.ts';
 import { detectBestWord, canExtendSelection } from '../logic/WordDetector.ts';
 import { scoreWordClassic, scoreWordBlitz, timeBonus } from '../logic/Scoring.ts';
 import { WORDS } from '../data/wordList.ts';
@@ -171,5 +171,35 @@ describe('Scoring', () => {
   it('timeBonus: 3-letter = 8s, 4-letter = 15s', () => {
     expect(timeBonus('ACE')).toBe(8);
     expect(timeBonus('STAR')).toBe(15);
+  });
+});
+
+// ── ensurePlayable ─────────────────────────────────────────────────────────────
+
+describe('ensurePlayable', () => {
+  const allQ: Grid = Array.from({ length: 4 }, () =>
+    Array.from({ length: 4 }, () => createCell('Q'))
+  );
+
+  it('returns a grid with a detectable word when given an unplayable grid', () => {
+    const result = ensurePlayable(allQ, WORDS);
+    expect(detectBestWord(result, WORDS)).not.toBeNull();
+  });
+
+  it('returns the original grid unchanged when a word already exists', () => {
+    const grid: Grid = [
+      ['S','T','A','R'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+    ];
+    const result = ensurePlayable(grid, WORDS);
+    expect(result).toBe(grid);
+  });
+
+  it('is idempotent — calling twice on an unplayable grid produces a playable result', () => {
+    const once = ensurePlayable(allQ, WORDS);
+    const twice = ensurePlayable(once, WORDS);
+    expect(detectBestWord(twice, WORDS)).not.toBeNull();
   });
 });

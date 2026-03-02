@@ -2,7 +2,7 @@ import type { Grid, Coord } from '../types/Cell.ts';
 import type { GameModeConfig } from '../types/GameMode.ts';
 import type { IGameMode } from './IGameMode.ts';
 import { WORDS } from '../data/wordList.ts';
-import { initBlitzGrid, pivotGrid, clearPulsing, refillCells } from '../logic/GridEngine.ts';
+import { initBlitzGrid, pivotGrid, clearPulsing, refillCells, ensurePlayable } from '../logic/GridEngine.ts';
 import { detectBestWord, canExtendSelection, validateSelection } from '../logic/WordDetector.ts';
 import { scoreWordBlitz, timeBonus } from '../logic/Scoring.ts';
 
@@ -51,7 +51,7 @@ export class BlitzMode implements IGameMode {
   constructor(private readonly cb: BlitzCallbacks) {}
 
   start(): void {
-    this.grid        = initBlitzGrid();
+    this.grid        = ensurePlayable(initBlitzGrid(), WORDS);
     this.score       = 0;
     this.timeLeft    = 60;
     this.combo       = 1;
@@ -203,7 +203,7 @@ export class BlitzMode implements IGameMode {
   }
 
   private _refillInPlace(exitedCells: Coord[]): void {
-    this.grid = refillCells(this.grid, exitedCells);
+    this.grid = ensurePlayable(refillCells(this.grid, exitedCells), WORDS);
     this.cb.syncUI();
     this.cb.enterCells(exitedCells);
     this._detectWords();

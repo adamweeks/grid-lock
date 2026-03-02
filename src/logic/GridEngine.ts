@@ -1,5 +1,6 @@
 import type { Cell, Grid, Coord } from '../types/Cell.ts';
 import { INITIAL_LETTERS, LETTER_POOL } from '../data/wordList.ts';
+import { detectBestWord } from './WordDetector.ts';
 
 export function createCell(letter: string): Cell {
   return { letter, isLocked: false, isPulsing: false };
@@ -61,4 +62,31 @@ export function refillCells(grid: Grid, cells: Coord[]): Grid {
     next[r][c] = createCell(getRandomLetter());
   });
   return next;
+}
+
+/**
+ * Guarantees at least one valid word exists in the grid (row or column scan).
+ * If the grid already has a detectable word, returns it unchanged.
+ * Otherwise, places a random word from `words` into a random row or column.
+ * Returns a NEW grid — does not mutate the input.
+ */
+export function ensurePlayable(grid: Grid, words: Set<string>): Grid {
+  if (detectBestWord(grid, words) !== null) return grid;
+
+  const wordArr = Array.from(words);
+  const word = wordArr[Math.floor(Math.random() * wordArr.length)];
+  const isRow = Math.random() < 0.5;
+  const lineIdx = Math.floor(Math.random() * 4);
+  const offset = word.length === 3 ? Math.floor(Math.random() * 2) : 0;
+
+  return grid.map((row, r) =>
+    row.map((cell, c) => {
+      const pos = isRow ? c - offset : r - offset;
+      const onLine = isRow ? r === lineIdx : c === lineIdx;
+      if (onLine && pos >= 0 && pos < word.length) {
+        return createCell(word[pos].toUpperCase());
+      }
+      return cell;
+    })
+  );
 }
