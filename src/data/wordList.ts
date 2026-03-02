@@ -497,6 +497,11 @@ export const INITIAL_LETTERS: string[][] = [
   ['S','L','A','P'],
 ];
 
-/** Weighted letter pool for Blitz mode random tiles. */
+/**
+ * Weighted letter pool for Blitz mode random tiles.
+ * Distribution derived from letter frequency within the WORDS corpus
+ * (all valid 3-4 letter Scrabble words), so common short-word letters
+ * appear proportionally more often than in general English or Scrabble tile sets.
+ */
 export const LETTER_POOL =
-  'AAAAAABBBBCCCDDDDEEEEEEEEFFFGGGHHHHIIIIIIJJKKLLLLLMMMNNNNNOOOOOOPPPPQRRRRRRSSSSSSTTTTTTTUUUUUVVWWWXYYYZZ';
+  'AAAAAAAAAABBBCCCDDDDEEEEEEEEEEFFGGGHHHIIIIIIJKKKLLLLLMMMNNNNNOOOOOOOOPPPPQRRRRRSSSSSSSSTTTTTUUUUVWWXYYYZ';
