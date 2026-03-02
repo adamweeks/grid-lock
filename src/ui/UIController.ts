@@ -19,8 +19,9 @@ export class UIController {
   private readonly messageBanner  = el('message-banner');
   private readonly messageBannerInner: HTMLElement;
   private readonly classicBuilder = el('classic-builder');
-  private readonly wordDisplay    = el('word-display');
-  private readonly btnSubmitWord  = el<HTMLButtonElement>('btn-submit-word');
+  private readonly wordDisplay        = el('word-display');
+  private readonly btnClearSelection  = el<HTMLButtonElement>('btn-clear-selection');
+  private readonly btnSubmitWord      = el<HTMLButtonElement>('btn-submit-word');
   private readonly btnHint        = el<HTMLButtonElement>('btn-hint');
   private readonly instClassic    = el('instructions-classic');
   private readonly instBlitz      = el('instructions-blitz');
@@ -32,6 +33,7 @@ export class UIController {
   private readonly screenGameover = el('screen-gameover');
 
   private _autoDismissTimer: ReturnType<typeof setTimeout> | null = null;
+  private _scoreNotifTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     const inner = this.messageBanner.querySelector('div');
@@ -81,8 +83,9 @@ export class UIController {
   }
 
   showTimeAddBadge(seconds: number) {
-    this.timeAddBadge.textContent = `+${seconds}s`;
-    this.timeAddBadge.classList.remove('hidden', 'time-badge');
+    this.timeAddBadge.textContent = seconds > 0 ? `+${seconds}s` : `${seconds}s`;
+    this.timeAddBadge.classList.remove('hidden', 'time-badge', 'text-green-400', 'text-red-400');
+    this.timeAddBadge.classList.add(seconds > 0 ? 'text-green-400' : 'text-red-400');
     void this.timeAddBadge.offsetWidth;
     this.timeAddBadge.classList.add('time-badge');
     this.timeAddBadge.addEventListener(
@@ -105,8 +108,28 @@ export class UIController {
     this.messageBanner.classList.add('hidden');
   }
 
+  showScoreNotification(text: string, durationMs = 0, isError = false): void {
+    if (this._scoreNotifTimer !== null) clearTimeout(this._scoreNotifTimer);
+    this.wordDisplay.textContent = text;
+    const color = isError ? 'text-red-400' : 'text-yellow-400';
+    this.wordDisplay.className = `w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-2 text-center text-lg font-black tracking-widest ${color} min-h-[2.75rem] score-notif`;
+    this.btnClearSelection.classList.add('hidden');
+    this.btnSubmitWord.disabled = true;
+    this.btnSubmitWord.className = 'font-black py-2 rounded-xl text-sm border transition-colors bg-indigo-800 text-indigo-400 border-indigo-700';
+    this.btnSubmitWord.style.flex = '2 1 0%';
+    if (durationMs > 0) {
+      this._scoreNotifTimer = setTimeout(() => {
+        this._scoreNotifTimer = null;
+        this.updateWordDisplay('', false);
+      }, durationMs);
+    }
+  }
+
   updateWordDisplay(letters: string, canSubmit: boolean) {
+    if (this._scoreNotifTimer !== null) clearTimeout(this._scoreNotifTimer);
+    this._scoreNotifTimer = null;
     this.wordDisplay.textContent = letters || '— tap tiles to select —';
+    this.btnClearSelection.classList.toggle('hidden', !letters);
     this.wordDisplay.className = letters
       ? 'w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-2 text-center text-lg font-black tracking-widest text-slate-200 min-h-[2.75rem]'
       : 'w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-2 text-center text-lg font-black tracking-widest text-slate-400 min-h-[2.75rem]';
@@ -120,8 +143,8 @@ export class UIController {
     this.btnSubmitWord.style.flex = '2 1 0%';
   }
 
-  setHintAvailable(available: boolean) {
-    this.btnHint.disabled = !available;
+  setHintAvailable(_available: boolean) {
+    // hint availability is intentionally not exposed via button state
   }
 
   applyClassicModeUI() {
@@ -146,7 +169,6 @@ export class UIController {
     this.instBlitz.classList.remove('hidden');
     this.classicBuilder.classList.remove('hidden');
     this.btnHint.classList.remove('hidden');
-    this.btnHint.disabled = true;
   }
 
   showScreen(id: 'screen-select' | 'screen-game') {

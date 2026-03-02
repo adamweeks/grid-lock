@@ -78,16 +78,18 @@
 
     <!-- Classic: word builder bar (hidden in Blitz) -->
     <div id="classic-builder" class="hidden w-full mt-3 space-y-2">
-      <div id="word-display" class="w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-2 text-center text-lg font-black tracking-widest text-slate-400 min-h-[2.75rem]">
-        — tap tiles to select —
+      <div class="relative w-full">
+        <div id="word-display" class="w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-2 text-center text-lg font-black tracking-widest text-slate-400 min-h-[2.75rem]">
+          — tap tiles to select —
+        </div>
+        <button id="btn-clear-selection"
+          class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200 transition-colors text-base leading-none">
+          ✕
+        </button>
       </div>
       <div class="flex gap-2">
-        <button id="btn-clear-selection"
-          class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold py-2 rounded-xl text-sm transition-colors border border-slate-600">
-          Clear
-        </button>
-        <button id="btn-hint" disabled
-          class="hidden flex-1 bg-orange-900 hover:bg-orange-800 text-orange-300 font-bold py-2 rounded-xl text-sm transition-colors border border-orange-700 disabled:opacity-40 disabled:cursor-not-allowed">
+        <button id="btn-hint"
+          class="hidden flex-1 bg-orange-900 hover:bg-orange-800 text-orange-300 font-bold py-2 rounded-xl text-sm transition-colors border border-orange-700">
           Hint (-5s)
         </button>
         <button id="btn-submit-word" disabled

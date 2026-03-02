@@ -3,6 +3,13 @@ import type { Grid, Coord } from '../types/Cell.ts';
 type TileClickHandler = (r: number, c: number) => void;
 type PivotClickHandler = (pr: number, pc: number) => void;
 
+// SVG viewBox is 700×700. Each of the 7 columns/rows is 100 units.
+// Tile (r,c) occupies grid cell (gr=r*2, gc=c*2); its center is:
+//   cx = c * 200 + 50,  cy = r * 200 + 50
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const tileCX = (c: number) => c * 200 + 50;
+const tileCY = (r: number) => r * 200 + 50;
+
 /**
  * BoardRenderer — owns the game board DOM.
  * `build()` is called once; `render()` is called on every state change.
@@ -10,6 +17,7 @@ type PivotClickHandler = (pr: number, pc: number) => void;
  */
 export class BoardRenderer {
   private readonly boardEl: HTMLElement;
+  private svgEl: SVGSVGElement | null = null;
 
   constructor(containerId: string) {
     const el = document.getElementById(containerId);
@@ -26,6 +34,7 @@ export class BoardRenderer {
     this.boardEl.style.gap = '0px';
     this.boardEl.style.width = '100%';
     this.boardEl.style.aspectRatio = '1 / 1';
+    this.boardEl.style.position = 'relative';
 
     let isDragging = false;
     let lastDragCoord: { r: number; c: number } | null = null;
@@ -41,6 +50,8 @@ export class BoardRenderer {
           el.id = `tile-${r}-${c}`;
           el.className = 'tile flex items-center justify-center rounded-lg m-1 font-black select-none';
           el.style.fontSize = 'clamp(1rem, 5vw, 1.75rem)';
+          el.style.position = 'relative';
+          el.style.zIndex = '1';
 
           el.addEventListener('pointerdown', (e) => {
             e.preventDefault();
@@ -73,6 +84,8 @@ export class BoardRenderer {
           const pr = (gr - 1) / 2, pc = (gc - 1) / 2;
           const wrapper = document.createElement('div');
           wrapper.className = 'flex items-center justify-center';
+          wrapper.style.position = 'relative';
+          wrapper.style.zIndex = '1';
           const btn = document.createElement('button');
           btn.className = 'pivot-btn';
           btn.innerHTML = '↻';
@@ -83,10 +96,21 @@ export class BoardRenderer {
           this.boardEl.appendChild(wrapper);
 
         } else {
-          this.boardEl.appendChild(document.createElement('div'));
+          const spacer = document.createElement('div');
+          spacer.style.position = 'relative';
+          spacer.style.zIndex = '1';
+          this.boardEl.appendChild(spacer);
         }
       }
     }
+
+    // SVG overlay for the selection connector — sits below all grid items (z-index 0)
+    const svg = document.createElementNS(SVG_NS, 'svg') as SVGSVGElement;
+    svg.setAttribute('viewBox', '0 0 700 700');
+    svg.style.cssText =
+      'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden';
+    this.boardEl.appendChild(svg);
+    this.svgEl = svg;
   }
 
   /** Update tile visuals to reflect current game state. */
@@ -105,6 +129,8 @@ export class BoardRenderer {
 
         el.className = 'tile flex items-center justify-center rounded-lg m-1 font-black select-none';
         el.style.fontSize = 'clamp(1rem, 5vw, 1.75rem)';
+        el.style.position = 'relative';
+        el.style.zIndex = '1';
 
         // Re-apply preserved animation classes
         preserved.forEach(cls => el.classList.add(cls));
@@ -129,5 +155,29 @@ export class BoardRenderer {
         }
       }
     }
+
+    this._renderSelectionPath(selection);
+  }
+
+  /** Draw a rounded connector path through the centres of all selected tiles. */
+  private _renderSelectionPath(selection: Coord[]): void {
+    if (!this.svgEl) return;
+    this.svgEl.innerHTML = '';
+    if (selection.length === 0) return;
+
+    const color = '#a5b4fc'; // indigo-300 — slightly lighter than tile-selected for contrast
+    const opacity = '0.55';
+
+    if (selection.length === 1) {
+      // Single dot at the tile centre
+      this.svgEl.innerHTML =
+        `<circle cx="${tileCX(selection[0].c)}" cy="${tileCY(selection[0].r)}" r="20" fill="${color}" opacity="${opacity}"/>`;
+      return;
+    }
+
+    // Polyline with round caps/joins — endpoints naturally form circles matching the dot radius
+    const pts = selection.map(s => `${tileCX(s.c)},${tileCY(s.r)}`).join(' ');
+    this.svgEl.innerHTML =
+      `<polyline points="${pts}" stroke="${color}" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="${opacity}"/>`;
   }
 }
