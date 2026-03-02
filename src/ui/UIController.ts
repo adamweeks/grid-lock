@@ -27,6 +27,12 @@ export class UIController {
   private readonly instBlitz      = el('instructions-blitz');
   private readonly screenSelect   = el('screen-select');
   private readonly screenGame     = el('screen-game');
+  private readonly stat3Box       = el('stat3-box');
+  private readonly spinDisplay    = el('spin-display');
+  private readonly goIcon         = el('go-icon');
+  private readonly goTitle        = el('go-title');
+  private readonly goSubtitle     = el('go-subtitle');
+  private readonly goStat3Label   = el('go-stat3-label');
   private readonly goScore        = el('go-score');
   private readonly goWords        = el('go-words');
   private readonly goCombo        = el('go-combo');
@@ -147,10 +153,16 @@ export class UIController {
     // hint availability is intentionally not exposed via button state
   }
 
+  updateSpinDisplay(spins: number) {
+    this.spinDisplay.textContent = String(spins);
+  }
+
   applyClassicModeUI() {
     this.stat2Label.textContent    = 'Locked';
     this.stat2Value.className      = 'text-2xl font-bold text-slate-200';
     this.stat2Value.textContent    = '0 / 16';
+    this.stat3Box.classList.remove('hidden');
+    this.spinDisplay.textContent   = '0';
     this.comboBar.classList.add('hidden');
     this.instClassic.classList.remove('hidden');
     this.instBlitz.classList.add('hidden');
@@ -163,6 +175,7 @@ export class UIController {
     this.stat2Label.textContent = 'Time';
     this.stat2Value.textContent = '1:00';
     this.stat2Value.className   = 'text-2xl font-bold text-slate-200';
+    this.stat3Box.classList.add('hidden');
     this.timeAddBadge.classList.add('hidden');
     this.comboBar.classList.remove('hidden');
     this.instClassic.classList.add('hidden');
@@ -180,9 +193,27 @@ export class UIController {
   }
 
   showGameOver(score: number, wordsFound: number, bestCombo: number) {
-    this.goScore.textContent = score.toLocaleString();
-    this.goWords.textContent = String(wordsFound);
-    this.goCombo.textContent = `x${bestCombo}`;
+    this.goIcon.textContent       = '⚡';
+    this.goTitle.textContent      = "Time's Up!";
+    this.goSubtitle.textContent   = 'Blitz final results';
+    this.goStat3Label.textContent = 'Best Combo';
+    this.goScore.textContent      = score.toLocaleString();
+    this.goWords.textContent      = String(wordsFound);
+    this.goCombo.textContent      = `x${bestCombo}`;
+    this.goCombo.className        = 'font-bold text-orange-400';
+    this.screenGameover.classList.remove('hidden');
+    this.screenGameover.style.display = 'flex';
+  }
+
+  showClassicGameOver(score: number, wordsFound: number, spins: number) {
+    this.goIcon.textContent       = '🪨';
+    this.goTitle.textContent      = 'Puzzle Complete!';
+    this.goSubtitle.textContent   = 'Classic final results';
+    this.goStat3Label.textContent = 'Spins Used';
+    this.goScore.textContent      = score.toLocaleString();
+    this.goWords.textContent      = String(wordsFound);
+    this.goCombo.textContent      = String(spins);
+    this.goCombo.className        = 'font-bold text-slate-200';
     this.screenGameover.classList.remove('hidden');
     this.screenGameover.style.display = 'flex';
   }

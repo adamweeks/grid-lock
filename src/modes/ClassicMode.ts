@@ -12,6 +12,8 @@ export interface ClassicCallbacks {
   syncUI(): void;
   updateWordDisplay(letters: string, canSubmit: boolean): void;
   showScoreNotification(text: string, durationMs?: number, isError?: boolean): void;
+  onGameComplete(score: number, wordsFound: number, spins: number): void;
+  updateSpinDisplay(spins: number): void;
 }
 
 export class ClassicMode implements IGameMode {
@@ -27,6 +29,8 @@ export class ClassicMode implements IGameMode {
   private grid!: Grid;
   private score = 0;
   private selection: Coord[] = [];
+  private spinCount = 0;
+  private wordsFound = 0;
 
   constructor(private readonly cb: ClassicCallbacks) {}
 
@@ -34,13 +38,18 @@ export class ClassicMode implements IGameMode {
     this.grid = initClassicGrid();
     this.score = 0;
     this.selection = [];
+    this.spinCount = 0;
+    this.wordsFound = 0;
     this.cb.syncUI();
+    this.cb.updateSpinDisplay(0);
     this._refreshWordDisplay();
   }
 
   destroy(): void {}
 
   onPivot(pr: number, pc: number): void {
+    this.spinCount++;
+    this.cb.updateSpinDisplay(this.spinCount);
     this.grid = pivotGrid(this.grid, pr, pc);
     this.grid = clearPulsing(this.grid);
     this.selection = [];
@@ -80,13 +89,14 @@ export class ClassicMode implements IGameMode {
     const pts = scoreWordClassic(word);
     this.grid = lockCells(this.grid, this.selection);
     this.score += pts;
+    this.wordsFound++;
     this.selection = [];
     this._refreshWordDisplay();
     this.cb.syncUI();
 
     const locked = countLocked(this.grid);
     if (locked === 16) {
-      this.cb.showScoreNotification(`All tiles locked! ${this.score.toLocaleString()} pts 🎉`);
+      this.cb.onGameComplete(this.score, this.wordsFound, this.spinCount);
     } else {
       this.cb.showScoreNotification(`+${pts} pts — "${word}" locked in!`, 2000);
     }

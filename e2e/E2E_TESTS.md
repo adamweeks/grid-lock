@@ -76,6 +76,17 @@ Initial grid (deterministic): Row 0 = `S T A R`, Row 3 = `S L A P`.
 | invalid word does not change score | `#score-display` stays "0" |
 | invalid word submission clears selection after error dismisses | `#word-display` resets to placeholder after ~1.5s; submit disabled |
 
+### Spin counter
+
+| Test | What it verifies |
+|------|-----------------|
+| spin counter box is visible in Classic mode | `#stat3-box` is visible |
+| spin counter starts at 0 | `#spin-display` = "0" |
+| spin counter increments to 1 after one pivot | clicking one pivot button → `#spin-display` = "1" |
+| spin counter increments correctly after multiple pivots | 3 pivots → `#spin-display` = "3" |
+| committing a word does not change spin counter | submitting STAR → `#spin-display` still "0" |
+| spin counter resets to 0 after reset | 2 pivots then reset → `#spin-display` = "0" |
+
 ### Pivot buttons
 
 | Test | What it verifies |
@@ -89,6 +100,17 @@ Initial grid (deterministic): Row 0 = `S T A R`, Row 3 = `S L A P`.
 |------|-----------------|
 | reset after STAR: score back to 0 and tiles unlocked | `#score-display` = "0"; `#tile-0-0` loses `tile-locked` |
 
+### Classic game-over screen
+
+| Test | What it verifies |
+|------|-----------------|
+| game-over overlay shows "Puzzle Complete!" title after all 16 tiles locked | `#go-title` text = "Puzzle Complete!" |
+| game-over shows correct final score | `#go-score` reflects total pts earned |
+| game-over shows words found count | `#go-words` reflects number of words committed |
+| game-over shows spins used count | `#go-stat3-label` = "Spins Used"; `#go-combo` shows spin count |
+| Play Again from Classic game-over restarts Classic (not Blitz) | timer label absent; stat2-label = "Locked" |
+| Back to Modes from Classic game-over returns to mode-select | `#screen-select` visible; gameover hidden |
+
 ---
 
 ## `blitz.spec.ts` — Blitz mode game logic
@@ -101,6 +123,7 @@ Uses `page.clock.install()` before `page.goto()` to control `setInterval` ticks.
 |------|-----------------|
 | timer shows 1:00 at game start | `#stat2-value` = "1:00" |
 | combo bar is visible | `#combo-bar` visible |
+| spin counter box is hidden in Blitz mode | `#stat3-box` is hidden |
 | hint button is visible | `#btn-hint` visible |
 | hint button is never disabled regardless of word availability | `#btn-hint` not disabled (availability not exposed via button state) |
 | score starts at 0 | `#score-display` = "0" |

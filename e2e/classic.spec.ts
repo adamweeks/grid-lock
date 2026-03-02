@@ -210,6 +210,46 @@ test.describe('Classic mode', () => {
     await expect(page.locator('#btn-submit-word')).toBeDisabled();
   });
 
+  // ── Spin counter ───────────────────────────────────────────────────────
+
+  test('spin counter box is visible in Classic mode', async ({ page }) => {
+    await expect(page.locator('#stat3-box')).toBeVisible();
+  });
+
+  test('spin counter starts at 0', async ({ page }) => {
+    await expect(page.locator('#spin-display')).toHaveText('0');
+  });
+
+  test('spin counter increments to 1 after one pivot', async ({ page }) => {
+    await page.locator('[data-pivot-r="0"][data-pivot-c="0"]').click();
+    await expect(page.locator('#spin-display')).toHaveText('1');
+  });
+
+  test('spin counter increments correctly after multiple pivots', async ({ page }) => {
+    await page.locator('[data-pivot-r="0"][data-pivot-c="0"]').click();
+    await page.locator('[data-pivot-r="1"][data-pivot-c="1"]').click();
+    await page.locator('[data-pivot-r="0"][data-pivot-c="1"]').click();
+    await expect(page.locator('#spin-display')).toHaveText('3');
+  });
+
+  test('committing a word does not change spin counter', async ({ page }) => {
+    await page.click('#tile-0-0'); // S
+    await page.click('#tile-0-1'); // T
+    await page.click('#tile-0-2'); // A
+    await page.click('#tile-0-3'); // R
+    await page.click('#btn-submit-word');
+    await expect(page.locator('#spin-display')).toHaveText('0');
+  });
+
+  test('spin counter resets to 0 after reset', async ({ page }) => {
+    await page.locator('[data-pivot-r="0"][data-pivot-c="0"]').click();
+    await page.locator('[data-pivot-r="1"][data-pivot-c="1"]').click();
+    await expect(page.locator('#spin-display')).toHaveText('2');
+
+    await page.click('#reset-btn');
+    await expect(page.locator('#spin-display')).toHaveText('0');
+  });
+
   // ── Pivot buttons ──────────────────────────────────────────────────────
 
   test('9 pivot buttons are rendered', async ({ page }) => {

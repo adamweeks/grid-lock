@@ -40,7 +40,7 @@ document.getElementById('btn-back').addEventListener('click', () => {
 
 document.getElementById('go-play-again').addEventListener('click', () => {
   uiCtrl.hideGameOver();
-  ctrl.startBlitz();
+  ctrl.reset();
 });
 
 document.getElementById('go-modes').addEventListener('click', () => {

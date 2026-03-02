@@ -60,6 +60,11 @@
         <!-- +time flash (Blitz) -->
         <div id="time-add-badge" class="hidden absolute -top-5 left-1/2 -translate-x-1/2 text-green-400 font-black text-sm pointer-events-none"></div>
       </div>
+      <!-- Classic only: spin counter -->
+      <div id="stat3-box" class="hidden flex-1 bg-slate-800 rounded-xl px-3 py-2 text-center">
+        <div class="text-xs text-slate-400 uppercase tracking-wide">Spins</div>
+        <div id="spin-display" class="text-2xl font-bold text-indigo-400">0</div>
+      </div>
     </div>
 
     <!-- Blitz: combo badge (hidden in Classic) -->
@@ -114,16 +119,16 @@
     </div>
   </div>
 
-  <!-- ═══ BLITZ GAME OVER OVERLAY ══════════════════════════════════════ -->
+  <!-- ═══ GAME OVER OVERLAY (Classic + Blitz) ══════════════════════════ -->
   <div id="screen-gameover" class="hidden fixed inset-0 bg-slate-950/90 flex flex-col items-center justify-center px-6 z-50">
     <div class="bg-slate-800 border border-orange-700 rounded-2xl p-7 w-full max-w-xs text-center">
-      <div class="text-4xl mb-2">⚡</div>
-      <h2 class="text-2xl font-black text-orange-400 mb-1">Time's Up!</h2>
-      <div class="text-slate-400 text-sm mb-5">Blitz final results</div>
+      <div id="go-icon" class="text-4xl mb-2">⚡</div>
+      <h2 id="go-title" class="text-2xl font-black text-orange-400 mb-1">Time's Up!</h2>
+      <div id="go-subtitle" class="text-slate-400 text-sm mb-5">Blitz final results</div>
       <div class="space-y-2 mb-6">
         <div class="flex justify-between text-sm"><span class="text-slate-400">Final Score</span><span id="go-score" class="font-black text-yellow-400">0</span></div>
         <div class="flex justify-between text-sm"><span class="text-slate-400">Words Found</span><span id="go-words" class="font-bold text-slate-200">0</span></div>
-        <div class="flex justify-between text-sm"><span class="text-slate-400">Best Combo</span><span id="go-combo" class="font-bold text-orange-400">x1</span></div>
+        <div class="flex justify-between text-sm"><span id="go-stat3-label" class="text-slate-400">Best Combo</span><span id="go-combo" class="font-bold text-orange-400">x1</span></div>
       </div>
       <button id="go-play-again" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-black py-3 rounded-xl transition-colors">Play Again</button>
       <button id="go-modes" class="w-full mt-2 text-slate-400 hover:text-slate-200 text-sm transition-colors py-2">← Back to Modes</button>

@@ -20,6 +20,10 @@ test.describe('Blitz mode', () => {
     await expect(page.locator('#combo-bar')).toBeVisible();
   });
 
+  test('spin counter box is hidden in Blitz mode', async ({ page }) => {
+    await expect(page.locator('#stat3-box')).toBeHidden();
+  });
+
   test('hint button is visible', async ({ page }) => {
     await expect(page.locator('#btn-hint')).toBeVisible();
   });
