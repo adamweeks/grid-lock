@@ -131,8 +131,8 @@ test.describe('Daily Classic Puzzle', () => {
   // ── Game-over screen ─────────────────────────────────────────────────────────
 
   test('share button is hidden on non-daily game-over (classic)', async ({ page }) => {
-    // Start classic (non-daily) — share button should stay hidden
-    await page.click('#btn-classic');
+    // Start blitz (non-daily) — share button should stay hidden
+    await page.click('#btn-blitz');
     // We can't easily complete the puzzle in e2e without knowing the grid,
     // so just verify the share button is hidden when the classic game over appears
     // by checking it exists but is hidden
