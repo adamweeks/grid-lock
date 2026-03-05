@@ -26,7 +26,25 @@ export interface DailyResult {
   spins: number;
 }
 
+/** A single play-through of a daily puzzle (one of potentially many retries). */
+export interface AttemptRecord {
+  score: number;
+  wordsFound: number;
+  spins: number;
+  timestamp: number;
+  /** true = all 16 tiles locked; false = no more words could be found */
+  completed: boolean;
+}
+
+/** Full retry history for one day's puzzle. */
+export interface DailyHistory {
+  date: string;
+  puzzleNumber: number;
+  attempts: AttemptRecord[];
+}
+
 const STORAGE_KEY = 'grid-lock-daily-v1';
+const HISTORY_KEY = 'grid-lock-daily-attempts-v1';
 
 // ── Seeded PRNG (LCG) ─────────────────────────────────────────────────────────
 
@@ -140,6 +158,38 @@ export function loadDailyResult(dateStr: string): DailyResult | null {
     if (!raw) return null;
     const result = JSON.parse(raw) as DailyResult;
     return result.date === dateStr ? result : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Appends a new attempt to this day's history and persists it.
+ * Returns the updated DailyHistory.
+ */
+export function addDailyAttempt(
+  date: string,
+  puzzleNumber: number,
+  attempt: AttemptRecord,
+): DailyHistory {
+  const existing = loadDailyHistory(date);
+  const history: DailyHistory = existing
+    ? { ...existing, attempts: [...existing.attempts, attempt] }
+    : { date, puzzleNumber, attempts: [attempt] };
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch {
+    // Ignore storage errors
+  }
+  return history;
+}
+
+export function loadDailyHistory(dateStr: string): DailyHistory | null {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return null;
+    const h = JSON.parse(raw) as DailyHistory;
+    return h.date === dateStr ? h : null;
   } catch {
     return null;
   }
