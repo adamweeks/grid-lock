@@ -12,8 +12,8 @@ test.describe('Navigation', () => {
     await expect(page.locator('#screen-gameover')).not.toBeVisible();
   });
 
-  test('Classic button transitions to game screen', async ({ page }) => {
-    await page.click('#btn-classic');
+  test('Daily Puzzle button transitions to game screen', async ({ page }) => {
+    await page.click('#btn-daily');
     await expect(page.locator('#screen-game')).toBeVisible();
     await expect(page.locator('#screen-select')).not.toBeVisible();
   });
@@ -26,21 +26,21 @@ test.describe('Navigation', () => {
   });
 
   test('Back button returns to mode-select screen', async ({ page }) => {
-    await page.click('#btn-classic');
+    await page.click('#btn-daily');
     await page.click('#btn-back');
     await expect(page.locator('#screen-select')).toBeVisible();
     await expect(page.locator('#screen-game')).not.toBeVisible();
   });
 
   test('Reset button keeps game screen visible', async ({ page }) => {
-    await page.click('#btn-classic');
+    await page.click('#btn-daily');
     await page.click('#reset-btn');
     await expect(page.locator('#screen-game')).toBeVisible();
     await expect(page.locator('#screen-select')).not.toBeVisible();
   });
 
-  test('Classic mode shows Locked label', async ({ page }) => {
-    await page.click('#btn-classic');
+  test('Daily mode shows Locked label', async ({ page }) => {
+    await page.click('#btn-daily');
     await expect(page.locator('#stat2-label')).toHaveText('Locked');
   });
 
@@ -50,8 +50,8 @@ test.describe('Navigation', () => {
     await page.click('#btn-back');
   });
 
-  test('Classic mode hides combo-bar', async ({ page }) => {
-    await page.click('#btn-classic');
+  test('Daily mode hides combo-bar', async ({ page }) => {
+    await page.click('#btn-daily');
     await expect(page.locator('#combo-bar')).toBeHidden();
   });
 
@@ -61,8 +61,8 @@ test.describe('Navigation', () => {
     await page.click('#btn-back');
   });
 
-  test('Classic mode hides hint button', async ({ page }) => {
-    await page.click('#btn-classic');
+  test('Daily mode hides hint button', async ({ page }) => {
+    await page.click('#btn-daily');
     await expect(page.locator('#btn-hint')).toBeHidden();
   });
 

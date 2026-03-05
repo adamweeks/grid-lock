@@ -32,10 +32,15 @@ export class ClassicMode implements IGameMode {
   private spinCount = 0;
   private wordsFound = 0;
 
-  constructor(private readonly cb: ClassicCallbacks) {}
+  constructor(
+    private readonly cb: ClassicCallbacks,
+    private readonly initialGrid?: Grid,
+  ) {}
 
   start(): void {
-    this.grid = initClassicGrid();
+    this.grid = this.initialGrid
+      ? this.initialGrid.map(row => row.map(cell => ({ ...cell })))
+      : initClassicGrid();
     this.score = 0;
     this.selection = [];
     this.spinCount = 0;
