@@ -37,11 +37,6 @@ document.getElementById('btn-daily').addEventListener('click', () => {
   ctrl.startDailyClassic(getTodaysPuzzle());
 });
 
-document.getElementById('btn-classic').addEventListener('click', () => {
-  uiCtrl.showScreen('screen-game');
-  ctrl.startClassic();
-});
-
 document.getElementById('btn-blitz').addEventListener('click', () => {
   uiCtrl.showScreen('screen-game');
   ctrl.startBlitz();
