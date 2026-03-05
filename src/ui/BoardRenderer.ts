@@ -55,6 +55,7 @@ export class BoardRenderer {
           el.style.zIndex = '1';
 
           el.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
             el.setPointerCapture(e.pointerId);
             isDragging = true;
             lastDragCoord = { r, c };
