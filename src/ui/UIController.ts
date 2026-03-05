@@ -51,6 +51,8 @@ export class UIController {
     const inner = this.messageBanner.querySelector('div');
     if (!inner) throw new Error('#message-banner > div not found');
     this.messageBannerInner = inner as HTMLElement;
+    // Ensure single-tap registers immediately on mobile without double-tap delay.
+    this.btnSubmitWord.style.touchAction = 'manipulation';
   }
 
   updateScore(score: number) {

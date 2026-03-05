@@ -44,10 +44,23 @@ document.getElementById('btn-blitz').addEventListener('click', () => {
 
 // ── In-game controls ──────────────────────────────────────────────────────────
 
-document.getElementById('btn-submit-word').addEventListener('click', () => ctrl.commit());
+const submitBtn = document.getElementById('btn-submit-word');
+submitBtn.addEventListener('click', () => ctrl.commit());
+// touchend fires before iOS ghost-click suppression and is not blocked by `disabled`,
+// so a single tap after dragging tiles always commits without requiring a second tap.
+submitBtn.addEventListener('touchend', (e) => {
+  if (submitBtn.disabled) return;
+  const t = e.changedTouches[0];
+  const under = document.elementFromPoint(t.clientX, t.clientY);
+  if (under === submitBtn || submitBtn.contains(under)) {
+    e.preventDefault(); // prevent the ghost click from firing a duplicate commit
+    ctrl.commit();
+  }
+});
 document.getElementById('btn-clear-selection').addEventListener('click', () => ctrl.clearSelection());
 document.getElementById('btn-hint').addEventListener('click', () => ctrl.hint());
 document.getElementById('reset-btn').addEventListener('click', () => ctrl.reset());
+
 
 document.getElementById('btn-back').addEventListener('click', () => {
   ctrl.teardown();
