@@ -6,6 +6,52 @@ Playwright tests live in `e2e/`. Run with `npm run test:e2e`.
 
 ---
 
+## `daily.spec.ts` — Daily Classic Puzzle mode
+
+Each test clears `localStorage` before running so daily completion state is clean.
+
+### Mode select screen
+
+| Test | What it verifies |
+|------|-----------------|
+| daily puzzle card is visible on mode-select screen | `#btn-daily` is visible |
+| daily puzzle card shows puzzle number badge | `#daily-puzzle-number` text matches `#\d+` |
+| daily puzzle card shows default status (not completed) initially | `#daily-status` does not contain "Completed" |
+
+### Navigation
+
+| Test | What it verifies |
+|------|-----------------|
+| daily button transitions to game screen | `#screen-game` visible; `#screen-select` hidden |
+| game subtitle shows daily puzzle number | `#game-subtitle` text matches `Daily Puzzle #\d+` |
+| back button from daily returns to mode-select | `#screen-select` visible; `#screen-game` hidden |
+| game subtitle is hidden after returning and starting classic | `#game-subtitle` hidden in classic mode |
+
+### Daily puzzle uses Classic UI
+
+| Test | What it verifies |
+|------|-----------------|
+| daily mode shows Locked label (uses classic UI) | `#stat2-label` = "Locked" |
+| daily mode shows spin counter | `#stat3-box` visible; `#spin-display` = "0" |
+| daily mode hides combo-bar | `#combo-bar` hidden |
+| daily mode hides hint button | `#btn-hint` hidden |
+| daily mode renders 16 tiles | all `#tile-r-c` elements visible |
+| daily puzzle is deterministic — same letters on reload | letter grid identical across page reloads |
+
+### Reset
+
+| Test | What it verifies |
+|------|-----------------|
+| reset restarts the same daily puzzle (same letters) | letter grid identical before and after reset |
+
+### Game-over screen
+
+| Test | What it verifies |
+|------|-----------------|
+| share button is hidden on non-daily game-over (classic) | `#go-share` hidden when classic game over is shown |
+
+---
+
 ## `navigation.spec.ts` — Screen routing and mode-select UI
 
 | Test | What it verifies |

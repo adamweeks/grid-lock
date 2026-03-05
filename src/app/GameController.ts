@@ -4,6 +4,7 @@ import type { IGameMode } from '../modes/IGameMode.ts';
 import type { UIController } from '../ui/UIController.ts';
 import type { BoardRenderer } from '../ui/BoardRenderer.ts';
 import type { AnimationPlayer } from '../ui/AnimationPlayer.ts';
+import { getTodaysPuzzle, saveDailyResult, type DailyPuzzleData } from '../logic/DailyPuzzle.ts';
 
 /**
  * GameController — wires the active game mode to the UI layer.
@@ -11,6 +12,7 @@ import type { AnimationPlayer } from '../ui/AnimationPlayer.ts';
  */
 export class GameController {
   private activeMode: IGameMode | null = null;
+  private _restartFn: (() => void) | null = null;
 
   constructor(
     private readonly uiCtrl: UIController,
@@ -19,6 +21,7 @@ export class GameController {
   ) {}
 
   startClassic(): void {
+    this._restartFn = () => this.startClassic();
     this._startMode(new ClassicMode({
       showMessage:           (t, ms)    => this.uiCtrl.showMessage(t, ms),
       hideMessage:           ()         => this.uiCtrl.hideMessage(),
@@ -31,6 +34,7 @@ export class GameController {
   }
 
   startBlitz(): void {
+    this._restartFn = () => this.startBlitz();
     this._startMode(new BlitzMode({
       showMessage:           (t, ms)   => this.uiCtrl.showMessage(t, ms),
       hideMessage:           ()        => this.uiCtrl.hideMessage(),
@@ -47,6 +51,24 @@ export class GameController {
     }));
   }
 
+  startDailyClassic(puzzle?: DailyPuzzleData): void {
+    const p = puzzle ?? getTodaysPuzzle();
+    this._restartFn = () => this.startDailyClassic(p);
+    this.uiCtrl.setGameSubtitle(`Daily Puzzle #${p.puzzleNumber}`);
+    this._startMode(new ClassicMode({
+      showMessage:           (t, ms)    => this.uiCtrl.showMessage(t, ms),
+      hideMessage:           ()         => this.uiCtrl.hideMessage(),
+      syncUI:                ()         => this.syncUI(),
+      updateWordDisplay:     (l, ok)    => this.uiCtrl.updateWordDisplay(l, ok),
+      showScoreNotification: (t, ms, e) => this.uiCtrl.showScoreNotification(t, ms, e),
+      onGameComplete: (score, wordsFound, spins) => {
+        saveDailyResult({ date: p.dateStr, puzzleNumber: p.puzzleNumber, score, wordsFound, spins });
+        this.uiCtrl.showDailyClassicGameOver(p.puzzleNumber, p.dateStr, score, wordsFound, spins);
+      },
+      updateSpinDisplay: (sp) => this.uiCtrl.updateSpinDisplay(sp),
+    }, p.grid));
+  }
+
   commit(): void {
     void this.activeMode?.onCommit();
   }
@@ -60,11 +82,12 @@ export class GameController {
   }
 
   reset(): void {
-    if (this.activeMode?.config.id === 'classic') this.startClassic();
-    else if (this.activeMode?.config.id === 'blitz') this.startBlitz();
+    this._restartFn?.();
   }
 
   teardown(): void {
+    this._restartFn = null;
+    this.uiCtrl.setGameSubtitle('');
     this.activeMode?.destroy();
     this.activeMode = null;
   }

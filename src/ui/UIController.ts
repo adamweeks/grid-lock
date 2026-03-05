@@ -37,9 +37,12 @@ export class UIController {
   private readonly goWords        = el('go-words');
   private readonly goCombo        = el('go-combo');
   private readonly screenGameover = el('screen-gameover');
+  private readonly gameSubtitle   = el('game-subtitle');
+  private readonly goShare        = el('go-share');
 
   private _autoDismissTimer: ReturnType<typeof setTimeout> | null = null;
   private _scoreNotifTimer: ReturnType<typeof setTimeout> | null = null;
+  private _shareText: string | null = null;
 
   constructor() {
     const inner = this.messageBanner.querySelector('div');
@@ -221,5 +224,47 @@ export class UIController {
   hideGameOver() {
     this.screenGameover.classList.add('hidden');
     this.screenGameover.style.display = 'none';
+    this.goShare.classList.add('hidden');
+    this._shareText = null;
+  }
+
+  /** Shows a subtitle line beneath the in-game title (e.g. "Daily Puzzle #64"). */
+  setGameSubtitle(text: string) {
+    this.gameSubtitle.textContent = text;
+    this.gameSubtitle.classList.toggle('hidden', !text);
+  }
+
+  showDailyClassicGameOver(puzzleNumber: number, dateStr: string, score: number, wordsFound: number, spins: number) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dateLabel = new Date(y, m - 1, d).toLocaleDateString(undefined, {
+      month: 'long', day: 'numeric', year: 'numeric',
+    });
+
+    this.goIcon.textContent       = '📅';
+    this.goTitle.textContent      = 'Daily Complete!';
+    this.goSubtitle.textContent   = `Puzzle #${puzzleNumber} · ${dateLabel}`;
+    this.goStat3Label.textContent = 'Spins Used';
+    this.goScore.textContent      = score.toLocaleString();
+    this.goWords.textContent      = String(wordsFound);
+    this.goCombo.textContent      = String(spins);
+    this.goCombo.className        = 'font-bold text-slate-200';
+
+    this._shareText =
+      `Grid-Lock Daily #${puzzleNumber}\n` +
+      `Score: ${score.toLocaleString()} pts\n` +
+      `Words: ${wordsFound} | Spins: ${spins}`;
+    this.goShare.classList.remove('hidden');
+
+    this.screenGameover.classList.remove('hidden');
+    this.screenGameover.style.display = 'flex';
+  }
+
+  async copyShareText(): Promise<void> {
+    if (!this._shareText) return;
+    try {
+      await navigator.clipboard.writeText(this._shareText);
+    } catch {
+      // Clipboard API unavailable (e.g. non-HTTPS) — silently ignore
+    }
   }
 }
