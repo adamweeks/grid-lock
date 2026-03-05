@@ -51,11 +51,12 @@ test.describe('Daily Classic Puzzle', () => {
     await expect(page.locator('#screen-game')).not.toBeVisible();
   });
 
-  test('game subtitle is hidden after returning to mode-select and starting classic', async ({ page }) => {
+  test('game subtitle is hidden after returning to mode-select and starting Blitz', async ({ page }) => {
     await page.click('#btn-daily');
     await page.click('#btn-back');
-    await page.click('#btn-classic');
+    await page.click('#btn-blitz');
     await expect(page.locator('#game-subtitle')).toBeHidden();
+    await page.click('#btn-back');
   });
 
   // ── Daily puzzle uses Classic UI ─────────────────────────────────────────────
