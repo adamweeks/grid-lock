@@ -2,6 +2,7 @@
  * UIController — owns references to all named DOM elements and exposes
  * typed methods for updating them. No game logic here.
  */
+import type { AttemptRecord } from '../logic/DailyPuzzle.ts';
 
 function el<T extends HTMLElement>(id: string): T {
   const e = document.getElementById(id);
@@ -39,6 +40,8 @@ export class UIController {
   private readonly screenGameover = el('screen-gameover');
   private readonly gameSubtitle   = el('game-subtitle');
   private readonly goShare        = el('go-share');
+  private readonly goHistory      = el('go-history');
+  private readonly goHistoryList  = el('go-history-list');
 
   private _autoDismissTimer: ReturnType<typeof setTimeout> | null = null;
   private _scoreNotifTimer: ReturnType<typeof setTimeout> | null = null;
@@ -208,15 +211,16 @@ export class UIController {
     this.screenGameover.style.display = 'flex';
   }
 
-  showClassicGameOver(score: number, wordsFound: number, spins: number) {
-    this.goIcon.textContent       = '🪨';
-    this.goTitle.textContent      = 'Puzzle Complete!';
+  showClassicGameOver(score: number, wordsFound: number, spins: number, allLocked: boolean) {
+    this.goIcon.textContent       = allLocked ? '🪨' : '🔒';
+    this.goTitle.textContent      = allLocked ? 'Puzzle Complete!' : 'No More Moves!';
     this.goSubtitle.textContent   = 'Classic final results';
     this.goStat3Label.textContent = 'Spins Used';
     this.goScore.textContent      = score.toLocaleString();
     this.goWords.textContent      = String(wordsFound);
     this.goCombo.textContent      = String(spins);
     this.goCombo.className        = 'font-bold text-slate-200';
+    this.goHistory.classList.add('hidden');
     this.screenGameover.classList.remove('hidden');
     this.screenGameover.style.display = 'flex';
   }
@@ -225,6 +229,8 @@ export class UIController {
     this.screenGameover.classList.add('hidden');
     this.screenGameover.style.display = 'none';
     this.goShare.classList.add('hidden');
+    this.goHistory.classList.add('hidden');
+    this.goHistoryList.innerHTML = '';
     this._shareText = null;
   }
 
@@ -234,14 +240,22 @@ export class UIController {
     this.gameSubtitle.classList.toggle('hidden', !text);
   }
 
-  showDailyClassicGameOver(puzzleNumber: number, dateStr: string, score: number, wordsFound: number, spins: number) {
+  showDailyClassicGameOver(
+    puzzleNumber: number,
+    dateStr: string,
+    score: number,
+    wordsFound: number,
+    spins: number,
+    allLocked: boolean,
+    attempts: AttemptRecord[],
+  ) {
     const [y, m, d] = dateStr.split('-').map(Number);
     const dateLabel = new Date(y, m - 1, d).toLocaleDateString(undefined, {
       month: 'long', day: 'numeric', year: 'numeric',
     });
 
-    this.goIcon.textContent       = '📅';
-    this.goTitle.textContent      = 'Daily Complete!';
+    this.goIcon.textContent       = allLocked ? '📅' : '🔒';
+    this.goTitle.textContent      = allLocked ? 'Daily Complete!' : 'No More Moves!';
     this.goSubtitle.textContent   = `Puzzle #${puzzleNumber} · ${dateLabel}`;
     this.goStat3Label.textContent = 'Spins Used';
     this.goScore.textContent      = score.toLocaleString();
@@ -249,14 +263,41 @@ export class UIController {
     this.goCombo.textContent      = String(spins);
     this.goCombo.className        = 'font-bold text-slate-200';
 
-    this._shareText =
-      `Grid-Lock Daily #${puzzleNumber}\n` +
-      `Score: ${score.toLocaleString()} pts\n` +
-      `Words: ${wordsFound} | Spins: ${spins}`;
-    this.goShare.classList.remove('hidden');
+    if (allLocked) {
+      this._shareText =
+        `Grid-Lock Daily #${puzzleNumber}\n` +
+        `Score: ${score.toLocaleString()} pts\n` +
+        `Words: ${wordsFound} | Spins: ${spins}`;
+      this.goShare.classList.remove('hidden');
+    }
+
+    this._renderHistory(attempts);
 
     this.screenGameover.classList.remove('hidden');
     this.screenGameover.style.display = 'flex';
+  }
+
+  private _renderHistory(attempts: AttemptRecord[]): void {
+    if (attempts.length === 0) {
+      this.goHistory.classList.add('hidden');
+      return;
+    }
+    this.goHistoryList.innerHTML = '';
+    attempts.forEach((a, i) => {
+      const row = document.createElement('div');
+      row.className = 'flex items-center justify-between gap-2 py-1 border-b border-slate-700 last:border-0';
+      const isCurrent = i === attempts.length - 1;
+      const statusIcon = a.completed ? '✓' : '✕';
+      const statusColor = a.completed ? 'text-emerald-400' : 'text-red-400';
+      row.innerHTML =
+        `<span class="text-slate-400 text-xs w-6">#${i + 1}</span>` +
+        `<span class="${isCurrent ? 'text-yellow-400 font-bold' : 'text-slate-200'}">${a.score.toLocaleString()} pts</span>` +
+        `<span class="text-slate-400">${a.wordsFound} word${a.wordsFound !== 1 ? 's' : ''}</span>` +
+        `<span class="text-indigo-400">${a.spins} spin${a.spins !== 1 ? 's' : ''}</span>` +
+        `<span class="${statusColor} font-bold text-xs">${statusIcon}</span>`;
+      this.goHistoryList.appendChild(row);
+    });
+    this.goHistory.classList.remove('hidden');
   }
 
   async copyShareText(): Promise<void> {

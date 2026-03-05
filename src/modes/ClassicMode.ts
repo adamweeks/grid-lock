@@ -3,7 +3,7 @@ import type { GameModeConfig } from '../types/GameMode.ts';
 import type { IGameMode } from './IGameMode.ts';
 import { WORDS } from '../data/wordList.ts';
 import { initClassicGrid, pivotGrid, clearPulsing, lockCells, countLocked } from '../logic/GridEngine.ts';
-import { validateSelection, canExtendSelection } from '../logic/WordDetector.ts';
+import { validateSelection, canExtendSelection, detectBestWord } from '../logic/WordDetector.ts';
 import { scoreWordClassic } from '../logic/Scoring.ts';
 
 export interface ClassicCallbacks {
@@ -12,7 +12,8 @@ export interface ClassicCallbacks {
   syncUI(): void;
   updateWordDisplay(letters: string, canSubmit: boolean): void;
   showScoreNotification(text: string, durationMs?: number, isError?: boolean): void;
-  onGameComplete(score: number, wordsFound: number, spins: number): void;
+  /** allLocked = true when all 16 tiles are locked; false when no more words remain. */
+  onGameComplete(score: number, wordsFound: number, spins: number, allLocked: boolean): void;
   updateSpinDisplay(spins: number): void;
 }
 
@@ -100,8 +101,10 @@ export class ClassicMode implements IGameMode {
     this.cb.syncUI();
 
     const locked = countLocked(this.grid);
-    if (locked === 16) {
-      this.cb.onGameComplete(this.score, this.wordsFound, this.spinCount);
+    const allLocked = locked === 16;
+    const hasMoreWords = allLocked ? false : detectBestWord(this.grid, WORDS) !== null;
+    if (allLocked || !hasMoreWords) {
+      this.cb.onGameComplete(this.score, this.wordsFound, this.spinCount, allLocked);
     } else {
       this.cb.showScoreNotification(`+${pts} pts — "${word}" locked in!`, 2000);
     }

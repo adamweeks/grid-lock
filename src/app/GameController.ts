@@ -4,7 +4,7 @@ import type { IGameMode } from '../modes/IGameMode.ts';
 import type { UIController } from '../ui/UIController.ts';
 import type { BoardRenderer } from '../ui/BoardRenderer.ts';
 import type { AnimationPlayer } from '../ui/AnimationPlayer.ts';
-import { getTodaysPuzzle, saveDailyResult, type DailyPuzzleData } from '../logic/DailyPuzzle.ts';
+import { getTodaysPuzzle, saveDailyResult, addDailyAttempt, type DailyPuzzleData } from '../logic/DailyPuzzle.ts';
 
 /**
  * GameController — wires the active game mode to the UI layer.
@@ -28,7 +28,7 @@ export class GameController {
       syncUI:                ()         => this.syncUI(),
       updateWordDisplay:     (l, ok)    => this.uiCtrl.updateWordDisplay(l, ok),
       showScoreNotification: (t, ms, e) => this.uiCtrl.showScoreNotification(t, ms, e),
-      onGameComplete:        (s, w, sp) => this.uiCtrl.showClassicGameOver(s, w, sp),
+      onGameComplete:        (s, w, sp, all) => this.uiCtrl.showClassicGameOver(s, w, sp, all),
       updateSpinDisplay:     (sp)       => this.uiCtrl.updateSpinDisplay(sp),
     }));
   }
@@ -61,9 +61,14 @@ export class GameController {
       syncUI:                ()         => this.syncUI(),
       updateWordDisplay:     (l, ok)    => this.uiCtrl.updateWordDisplay(l, ok),
       showScoreNotification: (t, ms, e) => this.uiCtrl.showScoreNotification(t, ms, e),
-      onGameComplete: (score, wordsFound, spins) => {
-        saveDailyResult({ date: p.dateStr, puzzleNumber: p.puzzleNumber, score, wordsFound, spins });
-        this.uiCtrl.showDailyClassicGameOver(p.puzzleNumber, p.dateStr, score, wordsFound, spins);
+      onGameComplete: (score, wordsFound, spins, allLocked) => {
+        if (allLocked) {
+          saveDailyResult({ date: p.dateStr, puzzleNumber: p.puzzleNumber, score, wordsFound, spins });
+        }
+        const history = addDailyAttempt(p.dateStr, p.puzzleNumber, {
+          score, wordsFound, spins, timestamp: Date.now(), completed: allLocked,
+        });
+        this.uiCtrl.showDailyClassicGameOver(p.puzzleNumber, p.dateStr, score, wordsFound, spins, allLocked, history.attempts);
       },
       updateSpinDisplay: (sp) => this.uiCtrl.updateSpinDisplay(sp),
     }, p.grid));
