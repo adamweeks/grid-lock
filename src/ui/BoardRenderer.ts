@@ -35,6 +35,7 @@ export class BoardRenderer {
     this.boardEl.style.width = '100%';
     this.boardEl.style.aspectRatio = '1 / 1';
     this.boardEl.style.position = 'relative';
+    this.boardEl.style.touchAction = 'none';
 
     let isDragging = false;
     let lastDragCoord: { r: number; c: number } | null = null;
@@ -54,7 +55,6 @@ export class BoardRenderer {
           el.style.zIndex = '1';
 
           el.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
             el.setPointerCapture(e.pointerId);
             isDragging = true;
             lastDragCoord = { r, c };

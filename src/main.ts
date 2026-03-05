@@ -49,14 +49,6 @@ document.getElementById('btn-clear-selection').addEventListener('click', () => c
 document.getElementById('btn-hint').addEventListener('click', () => ctrl.hint());
 document.getElementById('reset-btn').addEventListener('click', () => ctrl.reset());
 
-// When a tile drag ends over the Submit button, the tile's pointer capture
-// suppresses the click event on the button. Forward the commit here instead.
-document.getElementById('game-board').addEventListener('pointerup', (e) => {
-  const target = document.elementFromPoint(e.clientX, e.clientY);
-  if (target && target.id === 'btn-submit-word' && !target.disabled) {
-    ctrl.commit();
-  }
-});
 
 document.getElementById('btn-back').addEventListener('click', () => {
   ctrl.teardown();
