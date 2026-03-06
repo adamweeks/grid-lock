@@ -65,6 +65,34 @@ export function refillCells(grid: Grid, cells: Coord[]): Grid {
 }
 
 /**
+ * Returns true if any word in wordList can be formed from the unlocked letters
+ * on the grid (multiset subset check). Used by ClassicMode to determine whether
+ * a "no more moves" end-state applies.
+ */
+export function hasMovesRemaining(grid: Grid, wordList: Set<string>): boolean {
+  const available = new Map<string, number>();
+  for (const row of grid) {
+    for (const cell of row) {
+      if (!cell.isLocked) {
+        const ch = cell.letter.toLowerCase();
+        available.set(ch, (available.get(ch) ?? 0) + 1);
+      }
+    }
+  }
+  for (const word of wordList) {
+    const freq = new Map<string, number>();
+    let possible = true;
+    for (const ch of word) {
+      const need = (freq.get(ch) ?? 0) + 1;
+      if (need > (available.get(ch) ?? 0)) { possible = false; break; }
+      freq.set(ch, need);
+    }
+    if (possible) return true;
+  }
+  return false;
+}
+
+/**
  * Guarantees at least one valid word exists in the grid (row or column scan).
  * If the grid already has a detectable word, returns it unchanged.
  * Otherwise, places a random word from `words` into a random row or column.

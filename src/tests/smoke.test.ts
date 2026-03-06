@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { createCell, pivotGrid, ensurePlayable } from '../logic/GridEngine.ts';
+import { createCell, pivotGrid, ensurePlayable, hasMovesRemaining } from '../logic/GridEngine.ts';
 import { detectBestWord, canExtendSelection } from '../logic/WordDetector.ts';
 import { scoreWordClassic, scoreWordBlitz, timeBonus } from '../logic/Scoring.ts';
 import { WORDS } from '../data/wordList.ts';
@@ -171,6 +171,42 @@ describe('Scoring', () => {
   it('timeBonus: 3-letter = 8s, 4-letter = 15s', () => {
     expect(timeBonus('ACE')).toBe(8);
     expect(timeBonus('STAR')).toBe(15);
+  });
+});
+
+// ── hasMovesRemaining ──────────────────────────────────────────────────────────
+
+describe('hasMovesRemaining', () => {
+  it('returns true when unlocked letters can spell a valid word', () => {
+    // S, T, A, R scattered — no word in current rows/columns, but letters exist
+    const grid: Grid = [
+      ['S','Q','Q','Q'].map(createCell),
+      ['Q','T','Q','Q'].map(createCell),
+      ['Q','Q','A','Q'].map(createCell),
+      ['Q','Q','Q','R'].map(createCell),
+    ];
+    expect(hasMovesRemaining(grid, WORDS)).toBe(true);
+  });
+
+  it('returns false when no valid word can be formed from unlocked letters', () => {
+    const grid: Grid = [
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+    ];
+    expect(hasMovesRemaining(grid, WORDS)).toBe(false);
+  });
+
+  it('ignores locked tiles when checking letter availability', () => {
+    // S locked, T locked — only Q's remain, no word possible
+    const grid: Grid = [
+      [{ ...createCell('S'), isLocked: true }, { ...createCell('T'), isLocked: true }, createCell('Q'), createCell('Q')],
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+    ];
+    expect(hasMovesRemaining(grid, WORDS)).toBe(false);
   });
 });
 
