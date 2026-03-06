@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { createCell, pivotGrid, ensurePlayable } from '../logic/GridEngine.ts';
+import { createCell, pivotGrid, ensurePlayable, hasMovesRemaining } from '../logic/GridEngine.ts';
 import { detectBestWord, canExtendSelection } from '../logic/WordDetector.ts';
 import { scoreWordClassic, scoreWordBlitz, timeBonus } from '../logic/Scoring.ts';
 import { WORDS } from '../data/wordList.ts';
@@ -171,6 +171,52 @@ describe('Scoring', () => {
   it('timeBonus: 3-letter = 8s, 4-letter = 15s', () => {
     expect(timeBonus('ACE')).toBe(8);
     expect(timeBonus('STAR')).toBe(15);
+  });
+});
+
+// ── hasMovesRemaining ──────────────────────────────────────────────────────────
+
+describe('hasMovesRemaining', () => {
+  it('returns true when the current grid already contains a valid word', () => {
+    const grid: Grid = [
+      ['S','T','A','R'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+    ];
+    expect(hasMovesRemaining(grid, WORDS)).toBe(true);
+  });
+
+  it('returns false when no rotation can produce a valid word', () => {
+    const grid: Grid = [
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+    ];
+    expect(hasMovesRemaining(grid, WORDS)).toBe(false);
+  });
+
+  it('returns true when a single pivot rotation creates a valid word', () => {
+    // Arrange STAR letters so no current row/column spells a word,
+    // but one pivot of the top-left quadrant will place S-T-A-R in row 0.
+    // After pivoting (0,0):  [A B]  →  [C A]    so we need STAR in row 0 post-pivot.
+    // pivotGrid(grid, 0, 0): next[0][0]=grid[1][0], next[0][1]=grid[0][0],
+    //                         next[1][1]=grid[0][1], next[1][0]=grid[1][1]
+    // To get row 0 = [S, T, A, R] after pivot:
+    //   next[0][0]=S → grid[1][0]='S'
+    //   next[0][1]=T → grid[0][0]='T'
+    //   grid[0][2]='A', grid[0][3]='R' unchanged
+    const grid: Grid = [
+      ['T','Q','A','R'].map(createCell),
+      ['S','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+      ['Q','Q','Q','Q'].map(createCell),
+    ];
+    // Current grid: no valid word (TQAR, SQqq, etc.)
+    expect(detectBestWord(grid, WORDS)).toBeNull();
+    // After pivoting (0,0): row 0 = [S, T, A, R] = "STAR"
+    expect(hasMovesRemaining(grid, WORDS)).toBe(true);
   });
 });
 

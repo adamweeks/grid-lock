@@ -65,6 +65,22 @@ export function refillCells(grid: Grid, cells: Coord[]): Grid {
 }
 
 /**
+ * Returns true if a valid word exists in the current grid OR would exist after
+ * any single pivot rotation of an unlocked 2×2 quadrant.
+ * Used by ClassicMode to determine whether a "no more moves" end-state applies.
+ */
+export function hasMovesRemaining(grid: Grid, wordList: Set<string>): boolean {
+  if (detectBestWord(grid, wordList) !== null) return true;
+  for (let pr = 0; pr <= 2; pr++) {
+    for (let pc = 0; pc <= 2; pc++) {
+      const rotated = pivotGrid(grid, pr, pc);
+      if (detectBestWord(rotated, wordList) !== null) return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Guarantees at least one valid word exists in the grid (row or column scan).
  * If the grid already has a detectable word, returns it unchanged.
  * Otherwise, places a random word from `words` into a random row or column.
