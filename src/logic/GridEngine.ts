@@ -65,17 +65,29 @@ export function refillCells(grid: Grid, cells: Coord[]): Grid {
 }
 
 /**
- * Returns true if a valid word exists in the current grid OR would exist after
- * any single pivot rotation of an unlocked 2×2 quadrant.
- * Used by ClassicMode to determine whether a "no more moves" end-state applies.
+ * Returns true if any word in wordList can be formed from the unlocked letters
+ * on the grid (multiset subset check). Used by ClassicMode to determine whether
+ * a "no more moves" end-state applies.
  */
 export function hasMovesRemaining(grid: Grid, wordList: Set<string>): boolean {
-  if (detectBestWord(grid, wordList) !== null) return true;
-  for (let pr = 0; pr <= 2; pr++) {
-    for (let pc = 0; pc <= 2; pc++) {
-      const rotated = pivotGrid(grid, pr, pc);
-      if (detectBestWord(rotated, wordList) !== null) return true;
+  const available = new Map<string, number>();
+  for (const row of grid) {
+    for (const cell of row) {
+      if (!cell.isLocked) {
+        const ch = cell.letter.toLowerCase();
+        available.set(ch, (available.get(ch) ?? 0) + 1);
+      }
     }
+  }
+  for (const word of wordList) {
+    const freq = new Map<string, number>();
+    let possible = true;
+    for (const ch of word) {
+      const need = (freq.get(ch) ?? 0) + 1;
+      if (need > (available.get(ch) ?? 0)) { possible = false; break; }
+      freq.set(ch, need);
+    }
+    if (possible) return true;
   }
   return false;
 }

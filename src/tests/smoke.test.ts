@@ -177,17 +177,18 @@ describe('Scoring', () => {
 // ── hasMovesRemaining ──────────────────────────────────────────────────────────
 
 describe('hasMovesRemaining', () => {
-  it('returns true when the current grid already contains a valid word', () => {
+  it('returns true when unlocked letters can spell a valid word', () => {
+    // S, T, A, R scattered — no word in current rows/columns, but letters exist
     const grid: Grid = [
-      ['S','T','A','R'].map(createCell),
-      ['Q','Q','Q','Q'].map(createCell),
-      ['Q','Q','Q','Q'].map(createCell),
-      ['Q','Q','Q','Q'].map(createCell),
+      ['S','Q','Q','Q'].map(createCell),
+      ['Q','T','Q','Q'].map(createCell),
+      ['Q','Q','A','Q'].map(createCell),
+      ['Q','Q','Q','R'].map(createCell),
     ];
     expect(hasMovesRemaining(grid, WORDS)).toBe(true);
   });
 
-  it('returns false when no rotation can produce a valid word', () => {
+  it('returns false when no valid word can be formed from unlocked letters', () => {
     const grid: Grid = [
       ['Q','Q','Q','Q'].map(createCell),
       ['Q','Q','Q','Q'].map(createCell),
@@ -197,26 +198,15 @@ describe('hasMovesRemaining', () => {
     expect(hasMovesRemaining(grid, WORDS)).toBe(false);
   });
 
-  it('returns true when a single pivot rotation creates a valid word', () => {
-    // Arrange STAR letters so no current row/column spells a word,
-    // but one pivot of the top-left quadrant will place S-T-A-R in row 0.
-    // After pivoting (0,0):  [A B]  →  [C A]    so we need STAR in row 0 post-pivot.
-    // pivotGrid(grid, 0, 0): next[0][0]=grid[1][0], next[0][1]=grid[0][0],
-    //                         next[1][1]=grid[0][1], next[1][0]=grid[1][1]
-    // To get row 0 = [S, T, A, R] after pivot:
-    //   next[0][0]=S → grid[1][0]='S'
-    //   next[0][1]=T → grid[0][0]='T'
-    //   grid[0][2]='A', grid[0][3]='R' unchanged
+  it('ignores locked tiles when checking letter availability', () => {
+    // S locked, T locked — only Q's remain, no word possible
     const grid: Grid = [
-      ['T','Q','A','R'].map(createCell),
-      ['S','Q','Q','Q'].map(createCell),
+      [{ ...createCell('S'), isLocked: true }, { ...createCell('T'), isLocked: true }, createCell('Q'), createCell('Q')],
+      ['Q','Q','Q','Q'].map(createCell),
       ['Q','Q','Q','Q'].map(createCell),
       ['Q','Q','Q','Q'].map(createCell),
     ];
-    // Current grid: no valid word (TQAR, SQqq, etc.)
-    expect(detectBestWord(grid, WORDS)).toBeNull();
-    // After pivoting (0,0): row 0 = [S, T, A, R] = "STAR"
-    expect(hasMovesRemaining(grid, WORDS)).toBe(true);
+    expect(hasMovesRemaining(grid, WORDS)).toBe(false);
   });
 });
 
