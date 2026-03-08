@@ -1,4 +1,8 @@
-# Grid-Lock — Project Guide for Claude
+# CLAUDE.md — Grid-Lock Project Configuration
+
+# Adam Weeks | Webex DevRel / Side Projects
+
+---
 
 ## What this project is
 
@@ -6,6 +10,73 @@ Grid-Lock is a 4×4 rotational word puzzle game built with **Vite 5 + TypeScript
 
 - **Classic** — manually select tiles to spell 3–4 letter words; locked tiles score points; goal is to lock all 16 tiles.
 - **Blitz** — 60-second timed mode; the engine auto-detects a word; tap it to commit, earn time bonuses and build combos.
+
+---
+
+## Workflow Orchestration
+
+### 1. Plan Mode (Use With Judgment)
+
+- Enter plan mode for architectural decisions, ambiguous scope, or tasks with significant unknowns
+- Use plan mode when starting a new feature — not for every multi-step task
+- If something goes sideways mid-task, STOP and re-plan before continuing
+- Write a brief spec upfront when the goal is unclear — don't assume and build wrong
+
+### 2. Self-Improvement Loop
+
+- After ANY correction from the user: update `tasks/lessons.md` with the pattern
+- Write a rule for yourself that prevents the same mistake from recurring
+- Review `tasks/lessons.md` at the start of each session for the relevant project
+- This is how we get better across sessions — take it seriously
+
+### 3. Verification Before Done
+
+- Never mark a task complete without proving it works
+- Run `npm run test -- --run && npm run build` — both must be green before done
+- Ask yourself: "Would a senior engineer approve this PR?"
+- If the answer is no, keep going
+
+### 4. Autonomous Bug Fixing
+
+- When given a bug report: investigate and fix it — don't ask for hand-holding
+- Point at logs, errors, and failing tests — then resolve them
+- Zero unnecessary context-switching required from the user
+- Fix failing tests without being told exactly how
+
+### 5. Subagent Strategy (When Applicable)
+
+- Use subagents for parallel research or exploration tasks to keep the main context clean
+- One focused task per subagent — no multi-tasking subagents
+- Don't default to subagents for simple tasks; use them when complexity or parallelism justifies it
+
+---
+
+## Task Management
+
+1. **Plan First**: Write plan to `tasks/todo.md` with checkable items before starting
+1. **Verify Plan**: Check in with user before beginning implementation on significant changes
+1. **Track Progress**: Mark items complete as you go — keep `todo.md` current
+1. **Explain Changes**: Provide a high-level summary at each meaningful step
+1. **Document Results**: Add a review/summary section to `tasks/todo.md` when done
+1. **Capture Lessons**: Update `tasks/lessons.md` after any correction or course change
+
+```
+tasks/
+  todo.md        ← active task plan with checkboxes
+  lessons.md     ← running log of corrections and learned patterns
+```
+
+---
+
+## Core Principles
+
+- **Simplicity First**: Make every change as simple as possible. Minimal code impact.
+- **No Laziness**: Find root causes. No temporary patches. Senior developer standards.
+- **Minimal Impact**: Only touch what's necessary. Avoid introducing side effects or bugs.
+- **Be Decisive**: Implement cleanly. Don't second-guess straightforward solutions.
+- **Ask Once**: If something is ambiguous, ask before building — not halfway through.
+
+---
 
 ## Module structure
 
@@ -183,3 +254,7 @@ process.stdin.on('end',()=>{
 - **Promise-based animation.** `AnimationPlayer.exitTiles()` returns `Promise<void>`; `BlitzMode.onCommit()` is `async`. This replaces the original callback-nested approach and eliminates the redundant animation bug.
 - **Animation class preservation.** `BoardRenderer.render()` saves and restores `tile-spinning`, `tile-exiting`, `tile-entering` before resetting `className` — prevents in-flight animations from being clobbered by state updates.
 - **Node 18 compatibility.** Vite 5 + Tailwind 3 (PostCSS) are used instead of Vite 7 / Tailwind 4, which require Node ≥ 20.
+
+---
+
+*Last updated: March 2026*
